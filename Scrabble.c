@@ -27,11 +27,6 @@ int main()
 			lettre[joueur][compteurLettre]=tirerLettre();					/*Attribuer les lettres					   */
 		}																	/////////////////////////////////////////////
 	
-	int test=motValable("test");
-	
-	if(test==1)
-		printf("mot trouve");
-	
 	attendre_clic();
 	fermer_fenetre();
 	
@@ -108,17 +103,3 @@ int motValable(char motUtilise[7])
 	fclose(dico);
 	return 0;
 	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
