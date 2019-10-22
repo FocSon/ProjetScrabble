@@ -42,7 +42,7 @@ int main()
 			mains[joueur][compteurLettre]=tirerLettre();				/*Attribuer les lettres					   */
 		}																/*******************************************/
 
-	int test=motValable("aberraient", dicoTab, tailleDico);
+	int test=motValable("a", dicoTab, tailleDico);
 	printf("%d", test);
 	
 	attendre_clic();													//Fin de session graphique
@@ -106,17 +106,25 @@ int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
     return mots;
 	}
 
+
 /******************************************************************************/
 /* MOT VALABLE                                                                */
 /******************************************************************************/
 int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT], int tailleDico)
-	{
-	for(int parcourirDico=0; parcourirDico<tailleDico; parcourirDico ++)//on parcour les mots du dico
-		{			
-		if (strcmp(motUtilise,dicoTab[parcourirDico])==0)				//on compare les deux chaines de caractères (si égales, la fonction strcmp renvoi 0)
-			{															//return 1 si vrai
-			return 1;
-			}
+	{	
+	int debut=0, fin=tailleDico-1, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
+	
+	while(debut<=fin && strcmp(motUtilise, dicoTab[milieu])!=0)			//tant que le début et la fin ne se croisent pas ET que le mot n'est pas celui cherché
+		{
+		if(strcmp(motUtilise, dicoTab[milieu])>0)						//tester si le mot est avant ou après
+			debut=milieu+1;												//et adapter les variables en conséquence
+		else
+			fin=milieu-1;
+		milieu=(debut+fin)/2;
 		}
-	return 0;															//si aucune correspondance, return 0
+		
+	if(strcmp(motUtilise, dicoTab[milieu])==0)							//on vérifie la raison de sortie de la boucle
+		return 1;														//si sorti parceque le mot est trouvé, return 1
+	else	
+		return 0;														//si aucune correspondance, return 0
 	}
