@@ -35,13 +35,16 @@ int main()
 	afficher_image("Images/plateau.bmp", init);							/*affichage du plateau*/
 	actualiser();														/**********************/
 	
-	char lettre[2][7]={{')'}};											//Tableau qui vas stocker les cartes
+	char mains[2][7]={{')'}};											//Tableau qui vas stocker les cartes
 	for(joueur=1; joueur<=2; joueur++)									/*******************************************/
 		{																/*Varier les joueurs pour l'attribution    */
 		for(int compteurLettre=0; compteurLettre<=7; compteurLettre++)	/*Avancer dans le tableau pour chaquejoueur*/
-			lettre[joueur][compteurLettre]=tirerLettre();				/*Attribuer les lettres					   */
+			mains[joueur][compteurLettre]=tirerLettre();				/*Attribuer les lettres					   */
 		}																/*******************************************/
-				
+
+	int test=motValable("aberraient", dicoTab, tailleDico);
+	printf("%d", test);
+	
 	attendre_clic();													//Fin de session graphique
 	fermer_fenetre();
 	
@@ -56,7 +59,11 @@ char tirerLettre()														//fonction qui attribue les cartes
 	{
 	int idLettre = entier_aleatoire(26);
 	int static nbJokair=0;
-	char indexLettre[26]={' ','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','z'};
+	
+	char indexLettre[26];												//tableau qui détiens les lettres
+	for(char lettre='a'; lettre<='z'; lettre++)							//boucle qui vas affecter chaque lettre à sa place dans le tableau
+		indexLettre[lettre-'a']=lettre;									//
+	indexLettre[26]=' ';												//ajoute le jokair
 	
 	char lettre=indexLettre[idLettre];
 	
@@ -104,21 +111,12 @@ int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
 /******************************************************************************/
 int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT], int tailleDico)
 	{
-	char motTrouve[MAXLENMOT];											//Mot qui vas servir a comparer les resultats du dico
-	
 	for(int parcourirDico=0; parcourirDico<tailleDico; parcourirDico ++)//on parcour les mots du dico
-		{
-		for(int parcourirMot=0; dicoTab[parcourirDico][parcourirMot]!='\0'; parcourirMot++)//on assigne les lettres du mot a motTrouve
-			motTrouve[parcourirMot]=dicoTab[parcourirDico][parcourirMot];
-			
-		if (strcmp(motTrouve,motUtilise)==0)							//on compare les deux chaines de caractères (si égales, la fonction strcmp renvoi 0)
+		{			
+		if (strcmp(motUtilise,dicoTab[parcourirDico])==0)				//on compare les deux chaines de caractères (si égales, la fonction strcmp renvoi 0)
 			{															//return 1 si vrai
 			return 1;
 			}
-		else 															//si les chaines sont différentes, on vide motTrouve pour le reutiliser
-			for(int parcourirMot=0; parcourirMot<MAXLENMOT; parcourirMot++)
-				motTrouve[parcourirMot]='\0';
 		}
-	
 	return 0;															//si aucune correspondance, return 0
 	}
