@@ -1,0 +1,9 @@
+=== Version du 18/10/2017
+* Correctif du nom des paquets à installer dans la documentation
+
+=== Version du 6/10/2017
+* Ajout de fonctions manquantes: 
+    - attendre_touche_durée
+    - attendre_clic_gauche_droite
+    - taille_texte
+    - deplacement_souris_a_eu_lieu
