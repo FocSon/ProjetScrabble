@@ -21,6 +21,7 @@
 #include <time.h>
 #include "libgraphique.h"
 
+#define RATIO 1.2 //ratio de rayon pour tracé cercle
 
 ////////////////////////////////////////////////////////////////////////////////
 // 0. variables globales et macros
@@ -136,7 +137,7 @@ void dessiner_ligne(Point p1, Point p2, Couleur couleur)
     float erreur = 0;
     Point p ; // point courant
 
-    //lignes horizontales et certicales : plus rapide
+    //lignes horizontales et verticales : plus rapide
     if (dy == 0) 
     {
         p.y = p1.y ;
@@ -209,6 +210,24 @@ void dessiner_disque(Point centre, int rayon, Couleur couleur)
     }
 }
 
+//dessine un cercle de couleur voulue en donnant rayon et centre
+void dessiner_cercle(Point centre, int rayon, Couleur couleur)
+{
+    int xmin = centre.x - rayon ;
+    int xmax = centre.x + rayon ;
+    int ymin = centre.y - rayon ;
+    int ymax = centre.y + rayon ;
+
+    Point p ;
+
+    for (p.x = xmin; p.x <= xmax ; p.x++)
+    {
+        for (p.y = ymin; p.y <= ymax ; p.y++)
+            if ((centre.x-p.x)*(centre.x-p.x)+(centre.y-p.y)*(centre.y-p.y)<=rayon*rayon+rayon/RATIO &&
+             (centre.x-p.x)*(centre.x-p.x)+(centre.y-p.y)*(centre.y-p.y)>=rayon*rayon-rayon/RATIO)
+                changer_pixel(p, couleur);
+    }
+}
 
 
 
@@ -237,6 +256,36 @@ int attendre_touche(void){
     }
     while (lastevent.type != SDL_KEYDOWN ) ;
     return lastevent.key.keysym.sym;
+}
+
+// renvoie le code SDLK de la première touche pressée pendant
+// la durée duree_ms (en millisecondes)
+// (bloque le jeu en attente pendant cette duree)
+// renvoie 0 si aucune touche n'a été pressée
+int attendre_touche_duree(int duree_ms)
+{
+
+    Uint32 depart = SDL_GetTicks();
+    Uint32 courant = SDL_GetTicks();
+    int code = 0;
+    SDL_Event e;
+    while(SDL_PollEvent(&e))
+        _test_arret() ;
+    while(code==0 && courant - depart < duree_ms)
+    {
+        courant = SDL_GetTicks();
+        SDL_PollEvent(&e) ;
+        if(e.type == SDL_KEYDOWN)
+
+            code = e.key.keysym.sym;
+        _test_arret() ;
+    }
+    while(courant - depart < duree_ms ) 
+    {
+        courant = SDL_GetTicks();
+        _test_arret() ;
+    }
+    return code;
 }
 
 // renvoie les coordonnees du prochain clic (gauche ou droite) de souris

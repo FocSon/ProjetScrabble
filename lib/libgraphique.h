@@ -12,6 +12,9 @@
  *             resultat    : nom de l'exécutable                               *
  *******************************************************************************
 */
+#ifndef LIBGRAPHIQUE_H
+#define LIBGRAPHIQUE_H
+    
 
 ///////////////////////////////////////////////////////////////////////////////
 //0. Directive préprocesseur
@@ -71,6 +74,9 @@ void dessiner_ligne(Point p1, Point p2, Couleur);
 //dessine un disque (cercle plein) de couleur voulue en donnant rayon et centre
 void dessiner_disque(Point centre, int rayon, Couleur couleur);
 
+//dessine un cercle  de couleur voulue en donnant rayon et centre
+void dessiner_cercle(Point centre, int rayon, Couleur couleur);
+
 // affiche l'image sous forme .bmp (bitmap), contenue dans le même dossier
 // nom est une chaine de caracteres qui est le nom (complet) du fichier image
 // coin est le coin haut, gauche voulu pour l'image à afficher dans l'ecran
@@ -82,6 +88,11 @@ void afficher_image(char *nom, Point coin);
 // renvoie le code SDLK de la prochaine touche pressée
 // fonction bloquante
 int attendre_touche(void);
+
+// renvoie le code SDLK de la prochaine touche pressée avant une durée donnée
+// en milisecondes, fonction bloquante durant un certain temps.
+// Renvoie 0 si aucune touche n'a été pressée.
+int attendre_touche_duree(int);
 
 // renvoie les coordonnees du prochain clic (gauche ou droite) de souris
 // fonction bloquante
@@ -312,3 +323,4 @@ int entier_aleatoire(int n) ;
 #define yellowgreen          0x9ACD32
 
 
+#endif
