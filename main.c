@@ -35,9 +35,12 @@ int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT], int tailleD
 Point detecter_case(Point);												/************************/									
 int estDedans(Point);													/* Placer les lettres	*/
 int estLibre(Point, char plateau[15][15][2]);							/************************/	
+char selectionLettre(Point, int);
+void entourerCase(Point);
 
 void initContenuPlateau(char plateau[15][15][2]);						//fonctions en relation avec la plateau
 void updateContenuPlateau(char plateau[15][15][2], Point);					//
+void updateMainJoueur(Point, char mains[2][7], int);
 
 
 /******************************************************************************/
@@ -77,7 +80,23 @@ int main()
 		{																/*Varier les joueurs pour l'attribution    */
 		for(int compteurLettre=0; compteurLettre<7; compteurLettre++)	/*Avancer dans le tableau pour chaquejoueur*/
 			mains[joueur][compteurLettre]=tirerLettre(indexLettre, indexTirage);		/*Attribuer les lettres					   */
-		}																/*******************************************/
+		}
+
+	Point case_main_joueur1 = {26, 272};
+	Point case_main_joueur2 = {926, 272};
+	updateMainJoueur(case_main_joueur1, mains, 1);
+	updateMainJoueur(case_main_joueur2, mains, 2);
+	actualiser();
+
+	while(emplacement_lettre.x != 476 || emplacement_lettre.y != 476)
+		{
+		emplacement_lettre=attendre_clic();								//on attend un clic
+		emplacement_lettre= detecter_case(emplacement_lettre);
+		}
+	afficher_image("./Images/a.bmp", emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
+	actualiser();
+
+	updateContenuPlateau(contenu_plateau, emplacement_lettre);
 
 	while(1)
 		{																//boucle infinie paramètre a modifier pour condition de sortie
@@ -406,4 +425,48 @@ void initContenuPlateau(char plateau[15][15][2])
 void updateContenuPlateau(char plateau[15][15][2], Point p)
 	{
 	plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] = 'a';
+	}
+
+void updateMainJoueur(Point pos_case, char mains[2][7], int joueur)
+	{
+	int i;
+	char nom_lettre;
+	char lettre[14];
+	for(i=0; i<7; i++)
+		{
+		nom_lettre = mains[joueur][i];
+		sprintf(lettre,"./Images/%c.bmp", nom_lettre);
+		afficher_image(lettre, pos_case);
+		pos_case.y+=(TAILLECASE+20);
+		}
+	}
+
+char selectionLettre(Point p, int joueur)
+	{
+	/*if(joueur==1 && p.x>=26 && p.x<=74 && p.y>=272 && p.y<=680)
+		{
+		p.x = ((p.x - 26) - (p.x - 26) % 53) + 26;
+		p.y = ((p.y - 272) - (p.y - 272) % 63) + 272;
+		entourerCase(p);
+		}
+	else if(joueur==2 && p.x==926 && p.y>=272 && p.y<=680)
+		{
+		p.x = ((p.x - 926) - (p.x - 926) % 53) + 926;
+		p.y = ((p.y - 272) - (p.y - 272) % 63) + 272;
+		entourerCase(p);
+		}
+	return 'c';*/
+	}
+
+void entourerCase(Point p)
+	{
+	Point r1 = {(p.x-5),(p.y-5)};
+	Point r2 = {(p.x-5),(p.y-5)};
+	Point r3 = {(p.x+48),(p.y-5)};
+	Point r4 = {(p.x-5),(p.y+48)};
+
+	dessiner_rectangle(r1, 53, 5, rouge);
+	dessiner_rectangle(r2, 5, 53, rouge);
+	dessiner_rectangle(r3, 6, 58, rouge);
+	dessiner_rectangle(r4, 53, 5, rouge);
 	}
