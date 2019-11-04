@@ -5,8 +5,9 @@
 #define RESH 1000														//resolution de la fenetre
 #define RESV 1000
 
-#define BORDURE 5														//Bordures entre cases
-#define TAILLECASE 53															//Taille des cases
+#define BORDURE 5	
+#define ESPACEMENT 100													//Bordures entre cases
+#define TAILLECASE 48															//Taille des cases
 
 #define FILEDICO "./dictionnaire_fr_ss_accents"							// chemin du fichier dico
 #define SIZEDICO 319000                         						// taille large du dico
@@ -74,7 +75,7 @@ int main()
 	char mains[2][7]={{' '}};											//Tableau qui vas stocker les cartes
 	for(joueur=1; joueur<=2; joueur++)									/*******************************************/
 		{																/*Varier les joueurs pour l'attribution    */
-		for(int compteurLettre=0; compteurLettre<=7; compteurLettre++)	/*Avancer dans le tableau pour chaquejoueur*/
+		for(int compteurLettre=0; compteurLettre<7; compteurLettre++)	/*Avancer dans le tableau pour chaquejoueur*/
 			mains[joueur][compteurLettre]=tirerLettre(indexLettre, indexTirage);		/*Attribuer les lettres					   */
 		}																/*******************************************/
 
@@ -352,8 +353,11 @@ int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT], int tailleD
 /******************************************************************************/
 Point detecter_case(Point p)
 	{
-	p.x = ((p.x - BORDURE) - (p.x - BORDURE) % TAILLECASE) + BORDURE;
-	p.y = ((p.y - BORDURE) - (p.y - BORDURE) % TAILLECASE) + BORDURE;
+	if(p.x >=(BORDURE + ESPACEMENT) && p.x <= (RESH - (BORDURE + ESPACEMENT)) && p.y >= (BORDURE + ESPACEMENT) && p.y <= (RESV - (BORDURE + ESPACEMENT)))
+		{
+		p.x = ((p.x - (BORDURE + ESPACEMENT)) - (p.x - (BORDURE + ESPACEMENT)) % (TAILLECASE + BORDURE)) + (BORDURE + ESPACEMENT);
+		p.y = ((p.y - (BORDURE + ESPACEMENT)) - (p.y - (BORDURE + ESPACEMENT)) % (TAILLECASE + BORDURE)) + (BORDURE + ESPACEMENT);
+		}
 	return p;
 	}
 
@@ -362,7 +366,7 @@ Point detecter_case(Point p)
 /******************************************************************************/
 int estDedans(Point p)
 	{
-	if(p.x >= BORDURE && p.x <= 755 && p.y >= BORDURE && p.y <= 755)
+	if(p.x >= (BORDURE + ESPACEMENT) && p.x <= (RESH - (BORDURE + ESPACEMENT + TAILLECASE)) && p.y >= (BORDURE + ESPACEMENT) && p.y <= (RESV - (BORDURE + ESPACEMENT + TAILLECASE)))
 		return 1;	
 		
 	return 0;
@@ -373,7 +377,7 @@ int estDedans(Point p)
 /******************************************************************************/
 int estLibre(Point p, char plateau[15][15][2])
 	{
-	if(plateau[((p.y-5)/53)][((p.x-5)/53)][0] == ' ')
+	if(plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] == ' ')
 		return 1;
 		
 	return 0;
@@ -382,7 +386,8 @@ int estLibre(Point p, char plateau[15][15][2])
 /******************************************************************************/
 /* INITIALISATION CONTENU DU TABLEAU                                          */
 /******************************************************************************/
-void initContenuPlateau(char plateau[15][15][2]){
+void initContenuPlateau(char plateau[15][15][2])
+	{
 	int i,j,k;
 	
 	for(i=0; i<15; i++)
@@ -398,6 +403,7 @@ void initContenuPlateau(char plateau[15][15][2]){
 /******************************************************************************/
 /* UPDATE CONTENU PLATEAU                                                     */
 /******************************************************************************/
-void updateContenuPlateau(char plateau[15][15][2], Point p){
-	plateau[((p.y-5)/53)][((p.x-5)/53)][0] = 'a';
-}
+void updateContenuPlateau(char plateau[15][15][2], Point p)
+	{
+	plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] = 'a';
+	}
