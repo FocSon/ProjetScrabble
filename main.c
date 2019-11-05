@@ -13,7 +13,7 @@
 #define SIZEDICO 319000                         						// taille large du dico
 #define MAXLENMOT 26                            						// taille du mot max
 
-#define DEBUG 0
+#define DEBUG 1
 
 typedef struct{															//structure qui contiens :
 	char lettre[27];													//lettres
@@ -32,7 +32,7 @@ Lettres initialiserLettres();
 
 char tirerLettre(Lettres indexLettre, int indexTirage[2][27]);
 void chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
-int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT], int tailleDico);
+int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT]);
 
 Point detecter_case(Point);												/************************/									
 int estDansPlateau(Point);													/* Placer les lettres	*/
@@ -72,6 +72,10 @@ int main()
 #if DEBUG
 	for(int compteur=0; compteur < 27; compteur++)
 		printf("lettre:%c	valeur:%d	nbJetons:%d\n", indexLettre.lettre[compteur], indexLettre.valeur[compteur], indexLettre.nbJetons[compteur]);
+#endif
+#if DEBUG
+	int test=motValable("zythums", dicoTab);									//test du dico
+	printf("%d", test);
 #endif
 	menu();																//ouvre le menu au joueur
 
@@ -169,11 +173,6 @@ int main()
 #endif
 
 		}
-
-#if DEBUG
-	int test=motValable("a", dicoTab, tailleDico);					//test du dico
-	printf("%d", test);
-#endif
 
 	attendre_clic();													//Fin de session graphique
 	fermer_fenetre();
@@ -297,11 +296,11 @@ void initPoints(char plateau[15][15][2])
 		{
 		for(int lar=0; lar<15; lar++)
 			{
-			if( ((lon+7)%7==0 && (lar+7)%7==0) && !(lar==7 && lon==7))
-				plateau[lar][lon][1]='M';								//mot triple
-				
-			else if( ((lon==lar || (14-lon)==lar) && ((lar>0 && lar<5) || (lar>9 && lar<14) || lar==7)) )
+			if( ((lon==lar || (14-lon)==lar) && ((lar>0 && lar<5) || (lar>9 && lar<14) || lar==7)) )
 				plateau[lar][lon][1]='m';								//mot double
+				
+			else if( ((lon+7)%7==0 && (lar+7)%7==0) )
+				plateau[lar][lon][1]='M';								//mot triple
 			 
 			else if( (lon==1 || lon==5 || lon==9 || lon==13) && (lar==1 || lar==5 || lar==9 || lar==13) )
 				plateau[lar][lon][1]='L';								//lettre triple
@@ -425,9 +424,9 @@ void chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
 /******************************************************************************/
 /* MOT VALABLE                                                                */
 /******************************************************************************/
-int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT], int tailleDico)
+int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT])
 	{	
-	int debut=0, fin=tailleDico-1, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
+	int debut=0, fin=318896, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
 	
 	while(debut<=fin && strcmp(motUtilise, dicoTab[milieu])!=0)			//tant que le début et la fin ne se croisent pas ET que le mot n'est pas celui cherché
 		{
@@ -436,6 +435,12 @@ int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT], int tailleD
 		else
 			fin=milieu-1;
 		milieu=(debut+fin)/2;
+
+#if DEBUG
+		printf("milieu :%d	debut : %d	fin : %d\n", milieu, debut, fin);
+		printf("mot dico : %s\nmot à trouver : %s",dicoTab[milieu], motUtilise);
+		printf("\n");
+#endif
 		}
 		
 	if(strcmp(motUtilise, dicoTab[milieu])==0)							//on vérifie la raison de sortie de la boucle
