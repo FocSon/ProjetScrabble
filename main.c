@@ -35,7 +35,7 @@ int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT], int tailleD
 Point detecter_case(Point);												/************************/									
 int estDedans(Point);													/* Placer les lettres	*/
 int estLibre(Point, char plateau[15][15][2]);							/************************/	
-char selectionLettre(Point, int);
+void selectionLettre(Point, int);
 void entourerCase(Point);
 
 void initContenuPlateau(char plateau[15][15][2]);						//fonctions en relation avec la plateau
@@ -88,13 +88,15 @@ int main()
 	updateMainJoueur(case_main_joueur2, mains, 2);
 	actualiser();
 
+	selectionLettre(attendre_clic(),1);
+	actualiser();
+
 	while(emplacement_lettre.x != 476 || emplacement_lettre.y != 476)
 		{
 		emplacement_lettre=attendre_clic();								//on attend un clic
 		emplacement_lettre= detecter_case(emplacement_lettre);
 		}
 	afficher_image("./Images/a.bmp", emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
-	actualiser();
 
 	updateContenuPlateau(contenu_plateau, emplacement_lettre);
 
@@ -375,7 +377,7 @@ Point detecter_case(Point p)
 	if(p.x >=(BORDURE + ESPACEMENT) && p.x <= (RESH - (BORDURE + ESPACEMENT)) && p.y >= (BORDURE + ESPACEMENT) && p.y <= (RESV - (BORDURE + ESPACEMENT)))
 		{
 		p.x = ((p.x - (BORDURE + ESPACEMENT)) - (p.x - (BORDURE + ESPACEMENT)) % (TAILLECASE + BORDURE)) + (BORDURE + ESPACEMENT);
-		p.y = ((p.y - (BORDURE + ESPACEMENT)) - (p.y - (BORDURE + ESPACEMENT)) % (TAILLECASE + BORDURE)) + (BORDURE + ESPACEMENT);
+		p.y = ((p.y - (BORDURE + ESPACEMENT)) - (p.y - (BORDURE + ESPACEMENT)) % (TAILLECASE + BORDURE)) + (BORDURE + ESPACEMENT);	
 		}
 	return p;
 	}
@@ -441,8 +443,21 @@ void updateMainJoueur(Point pos_case, char mains[2][7], int joueur)
 		}
 	}
 
-char selectionLettre(Point p, int joueur)
+void selectionLettre(Point p, int joueur)
 	{
+	if(p.x>=26 && p.x<=74 && p.y>=272 && p.y<=680 && joueur==1)
+		{
+		p.x = ((p.x - 26) - (p.x - 26) % 53) + 26;
+		p.y = ((p.y - 272) - (p.y - 272) % 68) + 272;
+		if(p.y==272 || p.y==340 || p.y==408 || p.y==479 || p.y==544 || p.y==612 || p.y==680)
+			{
+			entourerCase(p);
+			}
+		}
+	printf("--------------------------------\n");
+	printf("%d %d\n", p.x, p.y);
+	printf("--------------------------------\n");
+
 	/*if(joueur==1 && p.x>=26 && p.x<=74 && p.y>=272 && p.y<=680)
 		{
 		p.x = ((p.x - 26) - (p.x - 26) % 53) + 26;
@@ -469,4 +484,5 @@ void entourerCase(Point p)
 	dessiner_rectangle(r2, 5, 53, rouge);
 	dessiner_rectangle(r3, 6, 58, rouge);
 	dessiner_rectangle(r4, 53, 5, rouge);
+	actualiser();
 	}
