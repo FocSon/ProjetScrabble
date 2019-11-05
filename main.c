@@ -33,10 +33,11 @@ void chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
 int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT], int tailleDico);
 
 Point detecter_case(Point);												/************************/									
-int estDedans(Point);													/* Placer les lettres	*/
-int estLibre(Point, char plateau[15][15][2]);							/************************/	
-void selectionLettre(Point, int);
+int estDansPlateau(Point);													/* Placer les lettres	*/
+int CaseEstLibre(Point, char plateau[15][15][2]);							/************************/	
+char selectionLettre(Point, int, char mains[2][7]);
 void entourerCase(Point);
+int estDansMainJoueur(Point, int);
 
 void initContenuPlateau(char plateau[15][15][2]);						//fonctions en relation avec la plateau
 void updateContenuPlateau(char plateau[15][15][2], Point);					//
@@ -88,15 +89,50 @@ int main()
 	updateMainJoueur(case_main_joueur2, mains, 2);
 	actualiser();
 
-	selectionLettre(attendre_clic(),1);
+	Point selection_lettre_joueur1;
+	Point selection_lettre_joueur2;
+
+	char lettre_selectionnee;
+
+	char chemin[14];
+
+	do
+		{
+		selection_lettre_joueur1 = attendre_clic();
+		} while(estDansMainJoueur(selection_lettre_joueur1, 1) == 0);
+
+	lettre_selectionnee = selectionLettre(selection_lettre_joueur1, 1, mains);
+
+	sprintf(chemin, "./Images/%c.bmp", lettre_selectionnee);
 	actualiser();
 
-	while(emplacement_lettre.x != 476 || emplacement_lettre.y != 476)
+	do
 		{
+		emplacement_lettre = attendre_clic();								//on attend un clic
+		emplacement_lettre = detecter_case(emplacement_lettre);
+		} while(emplacement_lettre.x != 476 || emplacement_lettre.y != 476);
+
+	afficher_image(chemin, emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
+	actualiser();
+
+	updateContenuPlateau(contenu_plateau, emplacement_lettre);
+
+	do
+		{
+		selection_lettre_joueur2 = attendre_clic();
+		} while(estDansMainJoueur(selection_lettre_joueur2, 2) == 0);
+
+	//selectionLettre(selection_lettre_joueur2, 2);
+	actualiser();
+
+	do
+		{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 		emplacement_lettre=attendre_clic();								//on attend un clic
-		emplacement_lettre= detecter_case(emplacement_lettre);
-		}
+		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
+		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0);
+
 	afficher_image("./Images/a.bmp", emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
+	actualiser();
 
 	updateContenuPlateau(contenu_plateau, emplacement_lettre);
 
@@ -107,7 +143,7 @@ int main()
 			{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 			emplacement_lettre=attendre_clic();								//on attend un clic
 			emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
-			} while (estDedans(detecter_case(emplacement_lettre)) == 0 || estLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0);
+			} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0);
 
 		afficher_image("./Images/a.bmp", emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
 		actualiser();
@@ -385,7 +421,7 @@ Point detecter_case(Point p)
 /******************************************************************************/
 /* POINT DANS TABLEAU ?                                                       */
 /******************************************************************************/
-int estDedans(Point p)
+int estDansPlateau(Point p)
 	{
 	if(p.x >= (BORDURE + ESPACEMENT) && p.x <= (RESH - (BORDURE + ESPACEMENT + TAILLECASE)) && p.y >= (BORDURE + ESPACEMENT) && p.y <= (RESV - (BORDURE + ESPACEMENT + TAILLECASE)))
 		return 1;	
@@ -396,7 +432,7 @@ int estDedans(Point p)
 /******************************************************************************/
 /* CASE EST LIBRE ?                                                           */
 /******************************************************************************/
-int estLibre(Point p, char plateau[15][15][2])
+int CaseEstLibre(Point p, char plateau[15][15][2])
 	{
 	if(plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] == ' ')
 		return 1;
@@ -443,17 +479,23 @@ void updateMainJoueur(Point pos_case, char mains[2][7], int joueur)
 		}
 	}
 
-void selectionLettre(Point p, int joueur)
+char selectionLettre(Point p, int joueur, char mains[2][7])
 	{
-	if(p.x>=26 && p.x<=74 && p.y>=272 && p.y<=680 && joueur==1)
+		char lettre_selectionnee;
+	if(joueur == 1)
 		{
 		p.x = ((p.x - 26) - (p.x - 26) % 53) + 26;
 		p.y = ((p.y - 272) - (p.y - 272) % 68) + 272;
-		if(p.y==272 || p.y==340 || p.y==408 || p.y==479 || p.y==544 || p.y==612 || p.y==680)
-			{
-			entourerCase(p);
-			}
+		lettre_selectionnee = mains[joueur][(p.y-272)/68];
+		entourerCase(p);
 		}
+	else if (joueur ==2)
+		{
+		p.x = ((p.x - 926) - (p.x - 926) % 53) + 926;
+		p.y = ((p.y - 272) - (p.y - 272) % 68) + 272;
+		entourerCase(p);
+		}
+
 	printf("--------------------------------\n");
 	printf("%d %d\n", p.x, p.y);
 	printf("--------------------------------\n");
@@ -469,8 +511,8 @@ void selectionLettre(Point p, int joueur)
 		p.x = ((p.x - 926) - (p.x - 926) % 53) + 926;
 		p.y = ((p.y - 272) - (p.y - 272) % 63) + 272;
 		entourerCase(p);
-		}
-	return 'c';*/
+		}*/
+	return lettre_selectionnee;
 	}
 
 void entourerCase(Point p)
@@ -485,4 +527,19 @@ void entourerCase(Point p)
 	dessiner_rectangle(r3, 6, 58, rouge);
 	dessiner_rectangle(r4, 53, 5, rouge);
 	actualiser();
+	}
+
+int estDansMainJoueur(Point p, int joueur)
+	{
+	if(joueur == 1)
+		{
+		if(p.x>=26 && p.x<=74 && ( (p.y>=272 && p.y<=320) || (p.y>=340 && p.y<=388) || (p.y>=408 && p.y<=456) || (p.y>=476 && p.y<=524) || (p.y>=544 && p.y<=592) || (p.y>=612 && p.y<=660) || (p.y>=680 && p.y<=728) ))
+			return 1;
+		}
+	if(joueur == 2)
+		{
+		if(p.x>=926 && p.x<=974 && ( (p.y>=272 && p.y<=320) || (p.y>=340 && p.y<=388) || (p.y>=408 && p.y<=456) || (p.y>=476 && p.y<=524) || (p.y>=544 && p.y<=592) || (p.y>=612 && p.y<=660) || (p.y>=680 && p.y<=728) ))
+			return 1;
+		}
+	return 0;
 	}
