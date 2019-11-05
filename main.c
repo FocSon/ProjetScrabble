@@ -22,21 +22,23 @@ typedef struct{															//structure qui contiens :
 	}Lettres;
 
 void menu();
-void survol(Point pos_souris);
-int traitement_choix(Point clic);
+void survol(Point);
+int traitement_choix(Point);
 
 void initPoints(char plateau[15][15][2]);
 
-void initIndexTirage(int indexTirage[2][27], Lettres indexLettre);
+void initIndexTirage(int indexTirage[2][27], Lettres);
 Lettres initialiserLettres();
 
-char tirerLettre(Lettres indexLettre, int indexTirage[2][27]);
+char tirerLettre(Lettres, int indexTirage[2][27]);
 void chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
 int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT]);
 
 Point detecter_case(Point);												/************************/									
 int estDansPlateau(Point);													/* Placer les lettres	*/
 int CaseEstLibre(Point, char plateau[15][15][2]);							/************************/	
+int peutPlacer(char plateau[15][15][2], Point);
+
 char selectionLettre(Point, int, char mains[2][7]);
 void entourerCase(Point);
 int estDansMainJoueur(Point, int);
@@ -120,10 +122,8 @@ int main()
 		emplacement_lettre = detecter_case(emplacement_lettre);
 		} while(emplacement_lettre.x != 476 || emplacement_lettre.y != 476);
 
-	afficher_image(chemin, emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
-	actualiser();
-
 	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
+	actualiser();
 
 	do
 		{
@@ -131,19 +131,15 @@ int main()
 		} while(estDansMainJoueur(selection_lettre_joueur2, 2) == 0);
 
 	lettre_selectionnee = selectionLettre(selection_lettre_joueur2, 2, mains);
-	sprintf(chemin, "./Images/%c.bmp", lettre_selectionnee);
-	actualiser();
 
 	do
 		{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 		emplacement_lettre=attendre_clic();								//on attend un clic
 		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
-		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0);
-
-	afficher_image(chemin, emplacement_lettre);			//on affiche la lettre du joueur(créer fonction qui determine la lettre
-	actualiser();
+		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0);
 
 	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
+	actualiser();
 
 	while(1)
 		{																//boucle infinie paramètre a modifier pour condition de sortie
@@ -506,7 +502,10 @@ void initContenuPlateau(char plateau[15][15][2])
 /******************************************************************************/
 void updateContenuPlateau(char plateau[15][15][2], Point p, char lettre_selectionnee)
 	{
+	char chemin[15];
 	plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] = lettre_selectionnee;
+	sprintf(chemin, "./Images/%c.bmp", lettre_selectionnee);
+	afficher_image(chemin, p);
 	}
 
 /******************************************************************************/
@@ -582,5 +581,18 @@ int estDansMainJoueur(Point p, int joueur)
 		if(p.x>=926 && p.x<=974 && ( (p.y>=272 && p.y<=320) || (p.y>=340 && p.y<=388) || (p.y>=408 && p.y<=456) || (p.y>=476 && p.y<=524) || (p.y>=544 && p.y<=592) || (p.y>=612 && p.y<=660) || (p.y>=680 && p.y<=728) ))
 			return 1;
 		}
+	return 0;
+	}
+	
+	
+int peutPlacer(char plateau[15][15][2], Point clic)
+	{
+	clic.x=((clic.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
+	clic.y=((clic.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
+
+	for(int verif=(-1); verif<2;verif+=2)
+		if( ((clic.y+verif<=14 && clic.y+verif>=0) && (plateau[clic.y+verif][clic.x][0]!=' ')) || ((clic.x+verif<=14 && clic.x+verif>=0) && (plateau[clic.y][clic.x+verif][0]!=' ')) )
+			return 1;
+
 	return 0;
 	}
