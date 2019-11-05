@@ -13,7 +13,7 @@
 #define SIZEDICO 319000                         						// taille large du dico
 #define MAXLENMOT 26                            						// taille du mot max
 
-#define DEBUG 1
+#define DEBUG 0
 
 typedef struct{															//structure qui contiens :
 	char lettre[27];													//lettres
@@ -24,6 +24,8 @@ typedef struct{															//structure qui contiens :
 void menu();
 void survol(Point pos_souris);
 int traitement_choix(Point clic);
+
+void initPoints(char plateau[15][15][2]);
 
 void initIndexTirage(int indexTirage[2][27], Lettres indexLettre);
 Lettres initialiserLettres();
@@ -64,6 +66,8 @@ int main()
 
 	char contenu_plateau[15][15][2];									//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
 	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
+	
+	initPoints(contenu_plateau);
 	
 #if DEBUG
 	for(int compteur=0; compteur < 27; compteur++)
@@ -167,8 +171,8 @@ int main()
 		}
 
 #if DEBUG
-	//int test=motValable("a", dicoTab, tailleDico);					//test du dico
-	//printf("%d", test);
+	int test=motValable("a", dicoTab, tailleDico);					//test du dico
+	printf("%d", test);
 #endif
 
 	attendre_clic();													//Fin de session graphique
@@ -283,7 +287,38 @@ void initIndexTirage(int indexTirage[2][27], Lettres indexLettre)		//tableau qui
 		indexTirage[1][idLettre]=nbJetonsTot;							//le nombre de jetons cumulé
 		}		
 	}
+	
+/******************************************************************************/
+/* INITIALISER POINTS	                                                      */
+/******************************************************************************/
+void initPoints(char plateau[15][15][2])
+	{
+	for(int lon=0; lon<15; lon++)
+		{
+		for(int lar=0; lar<15; lar++)
+			{
+			if( ((lon+7)%7==0 && (lar+7)%7==0) && !(lar==7 && lon==7))
+				plateau[lar][lon][1]='M';								//mot triple
+				
+			else if( ((lon==lar || (14-lon)==lar) && ((lar>0 && lar<5) || (lar>9 && lar<14) || lar==7)) )
+				plateau[lar][lon][1]='m';								//mot double
+			 
+			else if( (lon==1 || lon==5 || lon==9 || lon==13) && (lar==1 || lar==5 || lar==9 || lar==13) )
+				plateau[lar][lon][1]='L';								//lettre triple
+				
+			else if( ((lon+5)%8==0 && (lar%7==0)) || ((lar+5)%8==0 && (lon%7==0)) || ((lar==6 || lar==8 || lar==2 || lar==12) && (lon==6 || lon==8 || lon==2 || lon==12)))
+				plateau[lar][lon][1]='l';								//lettre double
 
+#if DEBUG
+			printf("%c",plateau[lar][lon][1]);
+#endif
+			}
+#if DEBUG
+		printf("\n");
+#endif
+		}
+	}
+	
 /******************************************************************************/
 /* INITIALISER LETTRES                                                        */
 /******************************************************************************/
@@ -469,6 +504,9 @@ void updateContenuPlateau(char plateau[15][15][2], Point p, char lettre_selectio
 	plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] = lettre_selectionnee;
 	}
 
+/******************************************************************************/
+/* UPDATE MAIN JOUEUR                                                         */
+/******************************************************************************/
 void updateMainJoueur(Point pos_case, char mains[2][7], int joueur)
 	{
 	int i;
@@ -504,9 +542,11 @@ char selectionLettre(Point p, int joueur, char mains[2][7])
 		entourerCase(p);
 		}
 
+#if DEBUG
 	printf("--------------------------------\n");
 	printf("%d %d\n", p.x, p.y);
 	printf("--------------------------------\n");
+#endif
 
 	return lettre_selectionnee;
 	}
