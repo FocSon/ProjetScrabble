@@ -40,7 +40,7 @@ void entourerCase(Point);
 int estDansMainJoueur(Point, int);
 
 void initContenuPlateau(char plateau[15][15][2]);						//fonctions en relation avec la plateau
-void updateContenuPlateau(char plateau[15][15][2], Point);					//
+void updateContenuPlateau(char plateau[15][15][2], Point, char);					//
 void updateMainJoueur(Point, char mains[2][7], int);
 
 
@@ -115,14 +115,15 @@ int main()
 	afficher_image(chemin, emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
 	actualiser();
 
-	updateContenuPlateau(contenu_plateau, emplacement_lettre);
+	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
 
 	do
 		{
 		selection_lettre_joueur2 = attendre_clic();
 		} while(estDansMainJoueur(selection_lettre_joueur2, 2) == 0);
 
-	//selectionLettre(selection_lettre_joueur2, 2);
+	lettre_selectionnee = selectionLettre(selection_lettre_joueur2, 2, mains);
+	sprintf(chemin, "./Images/%c.bmp", lettre_selectionnee);
 	actualiser();
 
 	do
@@ -131,10 +132,10 @@ int main()
 		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
 		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0);
 
-	afficher_image("./Images/a.bmp", emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
+	afficher_image(chemin, emplacement_lettre);			//on affiche la lettre du joueur(créer fonction qui determine la lettre
 	actualiser();
 
-	updateContenuPlateau(contenu_plateau, emplacement_lettre);
+	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
 
 	while(1)
 		{																//boucle infinie paramètre a modifier pour condition de sortie
@@ -147,8 +148,9 @@ int main()
 
 		afficher_image("./Images/a.bmp", emplacement_lettre);				//on affiche la lettre du joueur(créer fonction qui determine la lettre
 		actualiser();
-
-		updateContenuPlateau(contenu_plateau, emplacement_lettre);			//on affecte la lettre choisis au tableau
+		
+		lettre_selectionnee='a';
+		updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);			//on affecte la lettre choisis au tableau
 
 #if DEBUG
 	for(int b1=0; b1<15; b1++){
@@ -183,6 +185,8 @@ void menu ()															//fonction qui vas s'occuper de traiter les infos rec
 	Point clic = {0,0};
 	Point pos_souris ={0,0};
 	int choix=0;
+	
+	afficher_image("./Images/menu.bmp", clic);
 	
 	do 	{
 		
@@ -460,9 +464,9 @@ void initContenuPlateau(char plateau[15][15][2])
 /******************************************************************************/
 /* UPDATE CONTENU PLATEAU                                                     */
 /******************************************************************************/
-void updateContenuPlateau(char plateau[15][15][2], Point p)
+void updateContenuPlateau(char plateau[15][15][2], Point p, char lettre_selectionnee)
 	{
-	plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] = 'a';
+	plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] = lettre_selectionnee;
 	}
 
 void updateMainJoueur(Point pos_case, char mains[2][7], int joueur)
@@ -479,9 +483,12 @@ void updateMainJoueur(Point pos_case, char mains[2][7], int joueur)
 		}
 	}
 
+/******************************************************************************/
+/* SELECTION LETTRE                                                           */
+/******************************************************************************/
 char selectionLettre(Point p, int joueur, char mains[2][7])
 	{
-		char lettre_selectionnee;
+	char lettre_selectionnee;
 	if(joueur == 1)
 		{
 		p.x = ((p.x - 26) - (p.x - 26) % 53) + 26;
@@ -493,6 +500,7 @@ char selectionLettre(Point p, int joueur, char mains[2][7])
 		{
 		p.x = ((p.x - 926) - (p.x - 926) % 53) + 926;
 		p.y = ((p.y - 272) - (p.y - 272) % 68) + 272;
+		lettre_selectionnee = mains[joueur][(p.y-272)/68];
 		entourerCase(p);
 		}
 
@@ -500,18 +508,6 @@ char selectionLettre(Point p, int joueur, char mains[2][7])
 	printf("%d %d\n", p.x, p.y);
 	printf("--------------------------------\n");
 
-	/*if(joueur==1 && p.x>=26 && p.x<=74 && p.y>=272 && p.y<=680)
-		{
-		p.x = ((p.x - 26) - (p.x - 26) % 53) + 26;
-		p.y = ((p.y - 272) - (p.y - 272) % 63) + 272;
-		entourerCase(p);
-		}
-	else if(joueur==2 && p.x==926 && p.y>=272 && p.y<=680)
-		{
-		p.x = ((p.x - 926) - (p.x - 926) % 53) + 926;
-		p.y = ((p.y - 272) - (p.y - 272) % 63) + 272;
-		entourerCase(p);
-		}*/
 	return lettre_selectionnee;
 	}
 
