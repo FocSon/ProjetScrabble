@@ -43,7 +43,7 @@ Point attendreSelectionLettre(int);
 char selectionLettre(int, char mains[2][7], Point);
 void placerLettre(char contenu_plateau[15][15][2], char, Point);
 Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4]);
-void entourerCase(Point);
+void entourerCase(Point, Couleur);
 int estDansMainJoueur(Point, int);
 
 void initContenuPlateau(char plateau[15][15][2]);						//fonctions en relation avec la plateau
@@ -519,14 +519,14 @@ char selectionLettre(int joueur, char mains[2][7], Point p)
 		p.x = ((p.x - 26) - (p.x - 26) % 53) + 26;
 		p.y = ((p.y - 272) - (p.y - 272) % 68) + 272;
 		lettre_selectionnee = mains[joueur][(p.y-272)/68];
-		entourerCase(p);
+		entourerCase(p, rouge);
 		}
 	else if (joueur ==2)
 		{
 		p.x = ((p.x - 926) - (p.x - 926) % 53) + 926;
 		p.y = ((p.y - 272) - (p.y - 272) % 68) + 272;
 		lettre_selectionnee = mains[joueur][(p.y-272)/68];
-		entourerCase(p);
+		entourerCase(p, rouge);
 		}
 
 #if DEBUG
@@ -538,20 +538,26 @@ char selectionLettre(int joueur, char mains[2][7], Point p)
 	return lettre_selectionnee;
 	}
 
-void entourerCase(Point p)
+/******************************************************************************/
+/* ENTOURE LA CASE EN NOIR OU ROUGE                                           */
+/******************************************************************************/
+void entourerCase(Point p, Couleur couleur)
 	{
 	Point r1 = {(p.x-5),(p.y-5)};
 	Point r2 = {(p.x-5),(p.y-5)};
 	Point r3 = {(p.x+48),(p.y-5)};
 	Point r4 = {(p.x-5),(p.y+48)};
 
-	dessiner_rectangle(r1, 53, 5, rouge);
-	dessiner_rectangle(r2, 5, 53, rouge);
-	dessiner_rectangle(r3, 6, 58, rouge);
-	dessiner_rectangle(r4, 53, 5, rouge);
+	dessiner_rectangle(r1, 53, 5, couleur);
+	dessiner_rectangle(r2, 5, 53, couleur);
+	dessiner_rectangle(r3, 6, 58, couleur);
+	dessiner_rectangle(r4, 53, 5, couleur);
 	actualiser();
 	}
 
+/******************************************************************************/
+/* CLIC DANS LA MAIN DU JOUEUR ?                                              */
+/******************************************************************************/
 int estDansMainJoueur(Point p, int joueur)
 	{
 	if(joueur == 1)
@@ -567,7 +573,9 @@ int estDansMainJoueur(Point p, int joueur)
 	return 0;
 	}
 	
-	
+/******************************************************************************/
+/* AUTORISE A PLACER ?                                                        */
+/******************************************************************************/
 int peutPlacer(char contenu_plateau[15][15][2], Point clic, int autours[4])
 	{
 	clic.x=((clic.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
@@ -598,6 +606,9 @@ int peutPlacer(char contenu_plateau[15][15][2], Point clic, int autours[4])
 	return 1;
 	}
 
+/******************************************************************************/
+/* PLACER LETTRE SUR LE PLATEAU                                               */
+/******************************************************************************/
 void placerLettre(char contenu_plateau[15][15][2], char lettre_selectionnee, Point p)
 	{
 	char chemin[16];
@@ -607,6 +618,9 @@ void placerLettre(char contenu_plateau[15][15][2], char lettre_selectionnee, Poi
 	actualiser();
 	}
 
+/******************************************************************************/
+/* ATTENDRE SELECTION LETTRE DANS LA MAIN                                     */
+/******************************************************************************/
 Point attendreSelectionLettre(int joueur)
 	{
 	Point p;
@@ -619,6 +633,9 @@ Point attendreSelectionLettre(int joueur)
 	return p;
 	}
 
+/******************************************************************************/
+/* ATTENDRE PLACER LETTRE                                                     */
+/******************************************************************************/
 Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4])
 	{
 	Point emplacement_lettre;
