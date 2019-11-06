@@ -37,7 +37,7 @@ int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT]);
 Point detecter_case(Point);												/************************/									
 int estDansPlateau(Point);													/* Placer les lettres	*/
 int CaseEstLibre(Point, char plateau[15][15][2]);							/************************/	
-int peutPlacer(char plateau[15][15][2], Point);
+int peutPlacer(char plateau[15][15][2], Point, int autours[4]);
 
 char selectionLettre(Point, int, char mains[2][7]);
 void entourerCase(Point);
@@ -70,6 +70,8 @@ int main()
 	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 	
 	initPoints(contenu_plateau);
+	
+	int autours[4]={0};													//tableau qui vas contenu les codes pour savoir où sont les lettres autours
 	
 #if DEBUG
 	for(int compteur=0; compteur < 27; compteur++)
@@ -136,7 +138,7 @@ int main()
 		{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 		emplacement_lettre=attendre_clic();								//on attend un clic
 		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
-		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0);
+		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre, autours)==0);
 
 	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
 	actualiser();
@@ -585,14 +587,32 @@ int estDansMainJoueur(Point p, int joueur)
 	}
 	
 	
-int peutPlacer(char plateau[15][15][2], Point clic)
+int peutPlacer(char plateau[15][15][2], Point clic, int autours[4])
 	{
 	clic.x=((clic.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
 	clic.y=((clic.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
-
+	
+	for(int c=0; c<4; c++)
+		autours[c]=0;
+	
+	int compteur=0;
+	
 	for(int verif=(-1); verif<2;verif+=2)
-		if( ((clic.y+verif<=14 && clic.y+verif>=0) && (plateau[clic.y+verif][clic.x][0]!=' ')) || ((clic.x+verif<=14 && clic.x+verif>=0) && (plateau[clic.y][clic.x+verif][0]!=' ')) )
-			return 1;
-
-	return 0;
+		{
+		if( (clic.y+verif<=14 && clic.y+verif>=0) && plateau[clic.y+verif][clic.x][0]!=' ')
+			{
+			autours[compteur]=(verif+2);							
+			compteur++;													//retourne 1 si lettre en dessous et 3 si lettre au dessus
+			}
+		if( (clic.x+verif<=14 && clic.x+verif>=0) && (plateau[clic.y][clic.x+verif][0]!=' ') )
+			{
+			autours[compteur]=(verif+3);											//retourne 2 si lettre à droite et 4 si lettre à gauche
+			compteur++;
+			}
+		}
+	
+	if(compteur==0)
+		return 0;
+	
+	return 1;
 	}
