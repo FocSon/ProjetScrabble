@@ -361,7 +361,6 @@ char tirerLettre(Lettres indexLettre, int tirage[27])				//fonction qui attribue
 				printf("tirage %d", compteur);
 				idLettre=compteur;
 				printf("apres %d\n", idLettre);
-				attente(250);
 				break;
 				}
 			}
@@ -497,7 +496,7 @@ void afficherMainJoueur(Point pos_case, char mains[2][7], int joueur)
 	{
 	int i;
 	char nom_lettre;
-	char lettre[14];
+	char lettre[16];
 	for(i=0; i<7; i++)
 		{
 		nom_lettre = mains[joueur][i];
@@ -601,7 +600,7 @@ int peutPlacer(char contenu_plateau[15][15][2], Point clic, int autours[4])
 
 void placerLettre(char contenu_plateau[15][15][2], char lettre_selectionnee, Point p)
 	{
-	char chemin[14];
+	char chemin[16];
 
 	sprintf(chemin, "./Images/%c.bmp", lettre_selectionnee);
 	afficher_image(chemin, p);
