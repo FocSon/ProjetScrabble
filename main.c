@@ -10,7 +10,7 @@
 #define TAILLECASE 48															//Taille des cases
 
 #define FILEDICO "./dictionnaire_fr_ss_accents"							// chemin du fichier dico
-#define SIZEDICO 319000                         						// taille large du dico
+#define SIZEDICO 318896                         						// taille large du dico
 #define MAXLENMOT 26                            						// taille du mot max
 
 #define DEBUG 1
@@ -27,10 +27,10 @@ int traitement_choix(Point);
 
 void initPoints(char plateau[15][15][2]);
 
-void initIndexTirage(int indexTirage[2][27], Lettres);
+void initIndexTirage(int indexTirage[27], Lettres);
 Lettres initialiserLettres();
 
-char tirerLettre(Lettres, int indexTirage[2][27]);
+char tirerLettre(Lettres, int indexTirage[27]);
 void chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
 int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT]);
 
@@ -47,7 +47,7 @@ void entourerCase(Point);
 int estDansMainJoueur(Point, int);
 
 void initContenuPlateau(char plateau[15][15][2]);						//fonctions en relation avec la plateau
-void initMainJoueur(char mains[2][7], int indexTirage[2][27], Lettres);
+void initMainJoueur(char mains[2][7], int indextirage[27], Lettres);
 void updateContenuPlateau(char plateau[15][15][2], Point, char);					//
 void afficherMainJoueur(Point, char mains[2][7], int);
 
@@ -59,19 +59,19 @@ int main()
 	{
 	ouvrir_fenetre(RESH, RESV);											//ouvre la session graphique
 	
-	char dicoTab[SIZEDICO][MAXLENMOT];									//Le dictionnaire
-	chargeDico(FILEDICO, dicoTab);										//initialisation de dicoTab + renvoi la taille du dico dans tailleDico
+	char contenu_plateau[15][15][2];									//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
+	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 	
 	Lettres indexLettre=initialiserLettres();							//initalise la valeur des lettres ainsi que le n,ombre de jetons
 	
-	int indexTirage[2][27];												//initialisation du tableau nécessaire pour le tirage aléatoire
+	char dicoTab[SIZEDICO][MAXLENMOT];									//Le dictionnaire
+	chargeDico(FILEDICO, dicoTab);										//initialisation de dicoTab + renvoi la taille du dico dans tailleDico
+		
+	int indexTirage[27];												//initialisation du tableau nécessaire pour le tirage aléatoire
 	initIndexTirage(indexTirage, indexLettre);							//variable qui vas stoquer l'emplacement de la lettre
 
 	char mains[2][7]={{' '}};											//Tableau qui vas stocker les cartes
 	initMainJoueur(mains, indexTirage, indexLettre);
-
-	char contenu_plateau[15][15][2];									//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
-	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 	
 	initPoints(contenu_plateau);
 
@@ -242,15 +242,14 @@ int traitement_choix(Point clic)
 /******************************************************************************/
 /* INITIALISATION INDEX TIRAGE ALEATOIRE                                      */
 /******************************************************************************/
-void initIndexTirage(int indexTirage[2][27], Lettres indexLettre)		//tableau qui vas contenir les données necessaire pour un tirage plus réaliste
+void initIndexTirage(int indexTirage[27], Lettres indexLettre)		//tableau qui vas contenir les données necessaire pour un tirage plus réaliste
 	{
 	int nbJetonsTot=0;														
 
 	for(int idLettre=0; idLettre<27; idLettre++)
 		{
 		nbJetonsTot+=indexLettre.nbJetons[idLettre];					//calcule le nombre total de jeton en cumulant le nombre de jetons de chaque lettre
-		indexTirage[0][idLettre]=idLettre;								//l'id de la lettre qui viens d'etre utilisé précédement pour récupérer son nombre de jetons
-		indexTirage[1][idLettre]=nbJetonsTot;							//le nombre de jetons cumulé
+		indexTirage[idLettre]=nbJetonsTot;							//le nombre de jetons cumulé
 		}		
 	}
 	
@@ -341,9 +340,14 @@ Lettres initialiserLettres()
 /******************************************************************************/
 /* TIRER LETTRE                                                               */
 /******************************************************************************/
-char tirerLettre(Lettres indexLettre, int tirage[2][27])				//fonction qui attribue les cartes
+char tirerLettre(Lettres indexLettre, int tirage[27])				//fonction qui attribue les cartes
 	{
 	int idLettre=0;
+
+	for(int compteur=0; compteur<27; compteur++)
+		{
+		printf("tirage indice %d : %d\n", compteur, tirage[compteur]);
+		}
 
 	do
 		{
@@ -351,17 +355,17 @@ char tirerLettre(Lettres indexLettre, int tirage[2][27])				//fonction qui attri
 
 		for(int compteur=0; compteur<27; compteur++)					//parcourir les valeurs du tableau
 			{
-			if(idLettre < tirage[1][compteur])							//si le chiffre tiré est inferieur au nombre de jetons cumulés de a jusqu'a la lettre tiré, lui associe l'id de la lettre correspondante
+			if(idLettre < tirage[compteur])							//si le chiffre tiré est inferieur au nombre de jetons cumulés de a jusqu'a la lettre tiré, lui associe l'id de la lettre correspondante
 				{
 				printf("avant %d\n", idLettre);
-				printf("tableau %d tirage %d\n", tirage[0][compteur], compteur);
-				idLettre=tirage[0][compteur];
+				printf("tirage %d", compteur);
+				idLettre=compteur;
 				printf("apres %d\n", idLettre);
 				attente(250);
 				break;
 				}
 			}
-		}while(1);//indexLettre.nbJetons[] == 0);
+		}while(indexLettre.nbJetons[idLettre] == 0);
 
 	indexLettre.nbJetons[idLettre]-=1;
 	
@@ -396,7 +400,7 @@ void chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
 /******************************************************************************/
 int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT])
 	{	
-	int debut=0, fin=318896, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
+	int debut=0, fin=SIZEDICO, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
 	
 	while(debut<=fin && strcmp(motUtilise, dicoTab[milieu])!=0)			//tant que le début et la fin ne se croisent pas ET que le mot n'est pas celui cherché
 		{
@@ -471,14 +475,11 @@ void initContenuPlateau(char plateau[15][15][2])
 		}
 	}
 
-void initMainJoueur(char mains[2][7], int indexTirage[2][27], Lettres indexLettre)
-	{
-	int joueur;
-	for(joueur=1; joueur<=2; joueur++)									/*******************************************/
-		{																/*Varier les joueurs pour l'attribution    */
-		for(int compteurLettre=0; compteurLettre<7; compteurLettre++)	/*Avancer dans le tableau pour chaquejoueur*/
-			mains[joueur][compteurLettre]=tirerLettre(indexLettre, indexTirage);		/*Attribuer les lettres					   */
-		}
+void initMainJoueur(char mains[2][7], int indexTirage[27], Lettres indexLettre)
+	{		
+	for(int joueur=1; joueur<=2; joueur++)												
+		for(int compteurLettre=0; compteurLettre<7; compteurLettre++)
+			mains[joueur][compteurLettre]=tirerLettre(indexLettre, indexTirage);
 	}
 
 /******************************************************************************/
