@@ -49,8 +49,11 @@ int estDansMainJoueur(Point, int);
 void initContenuPlateau(char plateau[15][15][2]);						//fonctions en relation avec la plateau
 void initMainJoueur(char mains[2][7], int indextirage[27], Lettres);
 void updateContenuPlateau(char plateau[15][15][2], Point, char);					//
+
 void afficherMainJoueur(Point, char mains[2][7], int);
-void cacherMainJoueur(Point pos_case, char mains[2][7], int joueur);
+void cacherMainJoueur(Point pos_case, int joueur);
+
+Point convertirEnCaseTableau(Point clic);
 
 int clicBoutonValide(Point);
 int recupMot(Point, int autours[4], char plateau[15][15][2]);
@@ -98,25 +101,30 @@ int main()
 
 	Point case_main_joueur[2] = {{26, 272},{926, 272}};
 	
-	for(int compteur=0; compteur<2; compteur++)
-		{
-		cacherMainJoueur(case_main_joueur[compteur], mains, compteur+1);
-		}
+	afficherMainJoueur(case_main_joueur[0], mains, 1);
+	cacherMainJoueur(case_main_joueur[1],2);
 	actualiser();
-
-	/*do
-		{
-		emplacement_lettre = attendre_clic();								//on attend un clic
-		emplacement_lettre = detecter_case(emplacement_lettre);
-		} while(emplacement_lettre.x != 476 || emplacement_lettre.y != 476);*/
-
+	
 	Point emplacement_lettre_selectionnee;
 	char lettre_selectionnee;
 	Point emplacement_lettre;
 	Point emplacement_lettre_old;
+	Point emplacement_lettre_tab;
 
 	int joueur = 1;
-	int comptLettre=0;
+	int comptLettre=1;
+
+	do
+		{
+		emplacement_lettre_selectionnee = attendreSelectionLettre(joueur);							//premier tour
+		lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
+		emplacement_lettre = attendre_clic();
+		emplacement_lettre_tab = convertirEnCaseTableau(emplacement_lettre);
+		} while(emplacement_lettre_tab.x != 7 && emplacement_lettre_tab.y != 7);
+	emplacement_lettre=detecter_case(emplacement_lettre);
+	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
+	placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre);
+
 
 	while(1)
 		{
@@ -124,6 +132,7 @@ int main()
 			{
 			afficherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
 			actualiser();
+			
 			emplacement_lettre_selectionnee = attendreSelectionLettre(joueur);
 			if(clicBoutonValide(emplacement_lettre_selectionnee)==1 && comptLettre>=1 /*&& recupMot(emplacement_lettre_old, autours, contenu_plateau)==1*/)
 				break;
@@ -136,7 +145,7 @@ int main()
 			comptLettre++;
 			emplacement_lettre_old=emplacement_lettre;
 			}
-		cacherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
+		cacherMainJoueur(case_main_joueur[joueur-1], joueur);
 			
 		if(joueur == 1)
 			joueur ++;
@@ -471,7 +480,8 @@ int estDansPlateau(Point p)
 /******************************************************************************/
 int CaseEstLibre(Point p, char plateau[15][15][2])
 	{
-	if(plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] == ' ')
+	p=convertirEnCaseTableau(p);
+	if(plateau[p.y][p.x][0] == ' ')
 		return 1;
 		
 	return 0;
@@ -506,7 +516,8 @@ void initMainJoueur(char mains[2][7], int indexTirage[27], Lettres indexLettre)
 /******************************************************************************/
 void updateContenuPlateau(char plateau[15][15][2], Point p, char lettre_selectionnee)
 	{
-	plateau[((p.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][((p.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE))][0] = lettre_selectionnee;
+	p=convertirEnCaseTableau(p);
+	plateau[p.y][p.x][0] = lettre_selectionnee;
 	}
 
 /******************************************************************************/
@@ -529,7 +540,7 @@ void afficherMainJoueur(Point pos_case, char mains[2][7], int joueur)
 /******************************************************************************/
 /* CACHER MAIN JOUEUR                                                         */
 /******************************************************************************/
-void cacherMainJoueur(Point pos_case, char mains[2][7], int joueur)
+void cacherMainJoueur(Point pos_case, int joueur)
 	{
 	int i;
 	for(i=0; i<7; i++)
@@ -583,7 +594,7 @@ void entourerCase(Point p, Couleur couleur)
 
 	dessiner_rectangle(r1, 53, 5, couleur);
 	dessiner_rectangle(r2, 5, 53, couleur);
-	dessiner_rectangle(r3, 5, 53, couleur);
+	dessiner_rectangle(r3, 5, 58, couleur);
 	dessiner_rectangle(r4, 53, 5, couleur);
 	actualiser();
 	}
@@ -610,11 +621,8 @@ int estDansMainJoueur(Point p, int joueur)
 /* AUTORISE A PLACER ?                                                        */
 /******************************************************************************/
 int peutPlacer(char contenu_plateau[15][15][2], Point clic, int autours[4])
-	{
-	// attention faire ces opérations cr non comprises dans la fonction
-	
-	//clic.x=((clic.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
-	//clic.y=((clic.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
+	{	
+	clic=convertirEnCaseTableau(clic);
 	
 	for(int c=0; c<4; c++)
 		autours[c]=0;
@@ -679,7 +687,7 @@ Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4])
 		{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 		emplacement_lettre=attendre_clic();								//on attend un clic
 		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
-		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 /*| peutPlacer(contenu_plateau, emplacement_lettre, autours)==0*/);
+		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre, autours)==0);
 	return emplacement_lettre;
 	}
 
@@ -692,11 +700,18 @@ int clicBoutonValide(Point clic)
 		return 1;
 	return 0;
 	}
+
+Point convertirEnCaseTableau(Point clic)
+	{
+	clic.x=((clic.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
+	clic.y=((clic.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
 	
+	return clic;
+	}
+
 int recupMot(Point derniereLettre, int autours[4], char plateau[15][15][2])
 	{
-	derniereLettre.y=((derniereLettre.y-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
-	derniereLettre.x=((derniereLettre.x-(BORDURE + ESPACEMENT))/(TAILLECASE + BORDURE));
+	derniereLettre=convertirEnCaseTableau(derniereLettre);
 	
 	for(char caract=plateau[derniereLettre.y][derniereLettre.x][0]; caract!=' ';)
 		{
