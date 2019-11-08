@@ -484,7 +484,7 @@ void initMainJoueur(char mains[2][7], int indexTirage[27], Lettres indexLettre)
 	{		
 	for(int joueur=1; joueur<=2; joueur++)												
 		for(int compteurLettre=0; compteurLettre<7; compteurLettre++)
-			mains[joueur][compteurLettre]=tirerLettre(indexLettre, indexTirage);
+			mains[joueur-1][compteurLettre]=tirerLettre(indexLettre, indexTirage);
 	}
 
 /******************************************************************************/
@@ -505,7 +505,7 @@ void afficherMainJoueur(Point pos_case, char mains[2][7], int joueur)
 	char lettre[16];
 	for(i=0; i<7; i++)
 		{
-		nom_lettre = mains[joueur][i];
+		nom_lettre = mains[joueur-1][i];
 		sprintf(lettre,"./Images/%c.bmp", nom_lettre);
 		afficher_image(lettre, pos_case);
 		actualiser();
