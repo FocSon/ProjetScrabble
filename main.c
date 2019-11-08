@@ -32,7 +32,7 @@ Lettres initialiserLettres();
 
 char tirerLettre(Lettres, int indexTirage[27]);
 int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
-int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT]);
+int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT], int);
 
 Point detecter_case(Point);												/************************/									
 int estDansPlateau(Point);													/* Placer les lettres	*/
@@ -65,7 +65,7 @@ int main()
 	Lettres indexLettre=initialiserLettres();							//initalise la valeur des lettres ainsi que le n,ombre de jetons
 	
 	char dicoTab[SIZEDICO][MAXLENMOT];									//Le dictionnaire
-	chargeDico(FILEDICO, dicoTab);										//initialisation de dicoTab + renvoi la taille du dico dans tailleDico
+	int nbMotDico=chargeDico(FILEDICO, dicoTab);										//initialisation de dicoTab + renvoi la taille du dico dans tailleDico
 		
 	int indexTirage[27];												//initialisation du tableau nécessaire pour le tirage aléatoire
 	initIndexTirage(indexTirage, indexLettre);							//variable qui vas stoquer l'emplacement de la lettre
@@ -82,7 +82,7 @@ int main()
 		printf("lettre:%c	valeur:%d	nbJetons:%d\n", indexLettre.lettre[compteur], indexLettre.valeur[compteur], indexLettre.nbJetons[compteur]);
 #endif
 #if DEBUG
-	int test=motValable("zythums", dicoTab);									//test du dico
+	int test=motValable("zythums", dicoTab, nbMotDico);									//test du dico
 	printf("%d", test);
 #endif
 	menu();																//ouvre le menu au joueur
@@ -343,24 +343,24 @@ Lettres initialiserLettres()
 char tirerLettre(Lettres indexLettre, int tirage[27])				//fonction qui attribue les cartes
 	{
 	int idLettre=0;
-	int compteur=0;
+	int c=0;
 
-	for(int compteur=0; compteur<27; compteur++)
+	for(int c=0; c<27; c++)
 		{
-		printf("tirage indice %d : %d\n", compteur, tirage[compteur]);
+		printf("tirage indice %d : %d\n", c, tirage[c]);
 		}
 
 	do
 		{
 		idLettre = entier_aleatoire(102);								//102 lettres dans le jeu, pour tirage plus realiste, on pioche parmis les 102 jetons
 
-		for(compteur=0; compteur<27; compteur++)					//parcourir les valeurs du tableau
+		for(c=0; c<27; c++)					//parcourir les valeurs du tableau
 			{
-			if(idLettre < tirage[compteur])							//si le chiffre tiré est inferieur au nombre de jetons cumulés de a jusqu'a la lettre tiré, lui associe l'id de la lettre correspondante
+			if(idLettre < tirage[c])							//si le chiffre tiré est inferieur au nombre de jetons cumulés de a jusqu'a la lettre tiré, lui associe l'id de la lettre correspondante
 				{
 				printf("avant %d\n", idLettre);
-				printf("tirage %d", compteur);
-				idLettre=compteur;
+				printf("tirage %d", c);
+				idLettre=c;
 				printf("apres %d\n", idLettre);
 				break;
 				}
@@ -403,9 +403,9 @@ int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
 /******************************************************************************/
 /* MOT VALABLE                                                                */
 /******************************************************************************/
-int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT])
+int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT], int nbMotDico)
 	{	
-	int debut=0, fin=SIZEDICO, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
+	int debut=0, fin=nbMotDico, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
 	
 	while(debut<=fin && strcmp(motUtilise, dicoTab[milieu])!=0)			//tant que le début et la fin ne se croisent pas ET que le mot n'est pas celui cherché
 		{
