@@ -9,9 +9,9 @@
 #define ESPACEMENT 100													//Bordures entre cases
 #define TAILLECASE 48															//Taille des cases
 
-#define FILEDICO "./dictionnaire_fr_ss_accents"							// chemin du fichier dico
-#define SIZEDICO 318896                         						// taille large du dico
-#define MAXLENMOT 26                            						// taille du mot max
+#define FILEDICO "./dictionnaire_fr_ss_accents" // chemin du fichier dico
+#define SIZEDICO 319000                         // taille large du dico
+#define MAXLENMOT 26                            // taille du mot max
 
 #define DEBUG 1
 
@@ -31,7 +31,7 @@ void initIndexTirage(int indexTirage[27], Lettres);
 Lettres initialiserLettres();
 
 char tirerLettre(Lettres, int indexTirage[27]);
-void chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
+int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
 int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT]);
 
 Point detecter_case(Point);												/************************/									
@@ -343,6 +343,7 @@ Lettres initialiserLettres()
 char tirerLettre(Lettres indexLettre, int tirage[27])				//fonction qui attribue les cartes
 	{
 	int idLettre=0;
+	int compteur=0;
 
 	for(int compteur=0; compteur<27; compteur++)
 		{
@@ -353,7 +354,7 @@ char tirerLettre(Lettres indexLettre, int tirage[27])				//fonction qui attribue
 		{
 		idLettre = entier_aleatoire(102);								//102 lettres dans le jeu, pour tirage plus realiste, on pioche parmis les 102 jetons
 
-		for(int compteur=0; compteur<27; compteur++)					//parcourir les valeurs du tableau
+		for(compteur=0; compteur<27; compteur++)					//parcourir les valeurs du tableau
 			{
 			if(idLettre < tirage[compteur])							//si le chiffre tiré est inferieur au nombre de jetons cumulés de a jusqu'a la lettre tiré, lui associe l'id de la lettre correspondante
 				{
@@ -375,23 +376,28 @@ char tirerLettre(Lettres indexLettre, int tirage[27])				//fonction qui attribue
 /******************************************************************************/
 /* CHARGEDICO                                                                 */
 /******************************************************************************/
-void chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
-	{
-    FILE *f = fopen(filedico,"r"); 										// ouverture du fichier
+int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
+{
+    FILE *f = fopen(filedico,"r"); // ouverture du fichier
 
-    if (!f) 															// si ouverture ratée
-        fprintf(stderr,"fopen: problème d'ouverture du fichier '%s'\n'",filedico);
-
-    char line[MAXLENMOT]; 												// la ligne servant à la lecture du fichier
-
-    int mots=0; 														// indice dans tabdico 
-    while(fgets(line,MAXLENMOT,f)) 										// tant que fgets ne renvoie pas nul (eof)
+    if (!f) // si ouverture ratée
         {
-        sscanf(line,"%s\n",tabdico[mots]); 								// je scanne line et écris dans tabdico
+        fprintf(stderr,"fopen: problème d'ouverture du fichier '%s'\n'",filedico);
+        return 0;
+        }
+
+    char line[MAXLENMOT]; // la ligne servant à la lecture du fichier
+
+    int mots=0; // indice dans tabdico 
+    while(fgets(line,MAXLENMOT,f)) // tant que fgets ne renvoie pas nul (eof)
+        {
+        sscanf(line,"%s\n",tabdico[mots]); // je scanne line et écris dans tabdico
         mots++;
         }
-    fclose(f);															// fermeture du fichier
-	}
+    fclose(f); // fermeture du fichier
+    
+    return mots;
+}
 
 
 /******************************************************************************/
