@@ -113,15 +113,17 @@ int main()
 
 	int joueur = 1;
 	int comptLettre=1;
+	
+	emplacement_lettre_selectionnee = attendreSelectionLettre(joueur);							//premier tour selection lettre
+	lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
 
 	do
 		{
-		emplacement_lettre_selectionnee = attendreSelectionLettre(joueur);							//premier tour
-		lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-		emplacement_lettre = attendre_clic();
+		emplacement_lettre = attendre_clic();													//premier tour recup pos clic et verif
 		emplacement_lettre_tab = convertirEnCaseTableau(emplacement_lettre);
-		} while(emplacement_lettre_tab.x != 7 && emplacement_lettre_tab.y != 7);
-	emplacement_lettre=detecter_case(emplacement_lettre);
+		} while(emplacement_lettre_tab.x != 7|| emplacement_lettre_tab.y != 7);
+		
+	emplacement_lettre=detecter_case(emplacement_lettre);										//finaliser le tour
 	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
 	placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre);
 
