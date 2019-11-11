@@ -7,11 +7,11 @@
 
 #define BORDURE 5	
 #define ESPACEMENT 100													//Bordures entre cases
-#define TAILLECASE 48															//Taille des cases
+#define TAILLECASE 48													//Taille des cases
 
-#define FILEDICO "./dictionnaire_fr_ss_accents" // chemin du fichier dico
-#define SIZEDICO 319000                         // taille large du dico
-#define MAXLENMOT 26                            // taille du mot max
+#define FILEDICO "./dictionnaire_fr_ss_accents" 						// chemin du fichier dico
+#define SIZEDICO 319000                         						// taille large du dico
+#define MAXLENMOT 26                            						// taille du mot max
 
 #define DEBUG 1
 
@@ -36,14 +36,14 @@ char tirerLettre(Lettres *indexLettre, int indexTirage[27]);
 int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
 int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT], int);
 
-Point detecter_case(Point);												/************************/									
+Point detecter_case(Point);													/************************/									
 int estDansPlateau(Point);													/* Placer les lettres	*/
 int CaseEstLibre(Point, char plateau[15][15][2]);							/************************/	
 int peutPlacer(char contenu_plateau[15][15][2], Point, int autours[4]);
 
 Point attendreSelectionLettre(int, Point lettres_placees[7]);
 char selectionLettre(int, char mains[2][7], Point);
-void placerLettre(char contenu_plateau[15][15][2], char, Point);
+void placerLettre(char contenu_plateau[15][15][2], char, Point, Point);
 Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int, Point emplacement_lettre_old[15]);
 void entourerCase(Point, Couleur);
 int estDansMainJoueur(Point, int);
@@ -106,7 +106,6 @@ int main()
 	
 	afficherMainJoueur(case_main_joueur[0], mains, 1);
 	cacherMainJoueur(case_main_joueur[1],2);
-	actualiser();
 	
 	emplacement_lettre_selectionnee = attendreSelectionLettre(joueur,lettres_placees);							//premier tour selection lettre
 	lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
@@ -121,15 +120,13 @@ int main()
 	emplacement_lettre=detecter_case(emplacement_lettre);
 	emplacement_lettre_old[0]=emplacement_lettre;										//finaliser le tour
 	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
-	placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre);
+	placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
 
 
 	while(1)
 		{
 		while(1)
 			{
-			afficherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
-			actualiser();
 			
 			emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees);
 			if(clicBoutonValide(emplacement_lettre_selectionnee)==1 && comptLettre>=1)
@@ -138,7 +135,7 @@ int main()
 			lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
 			emplacement_lettre = attendrePlacerLettre(contenu_plateau, autours, comptLettre, emplacement_lettre_old);
 			updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
-			placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre);
+			placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
 			
 			comptLettre++;
 			}
@@ -150,6 +147,8 @@ int main()
 			joueur ++;
 		else
 			joueur=1;
+
+		afficherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
 
 #if DEBUG
 	for(int b1=0; b1<15; b1++){
@@ -567,6 +566,7 @@ void afficherMainJoueur(Point pos_case, char mains[2][7], int joueur)
 		nom_lettre = mains[joueur-1][i];
 		sprintf(lettre,"./Images/%c.bmp", nom_lettre);
 		afficher_image(lettre, pos_case);
+		actualiser();
 		pos_case.y+=(TAILLECASE+20);
 		}
 	}
@@ -583,6 +583,7 @@ void cacherMainJoueur(Point pos_case, int joueur)
 		entourerCase(pos_case, noir);
 		pos_case.y+=(TAILLECASE+20);
 		}
+	actualiser();
 	}
 	
 /******************************************************************************/
@@ -687,12 +688,14 @@ int peutPlacer(char contenu_plateau[15][15][2], Point clic, int autours[4])
 /******************************************************************************/
 /* PLACER LETTRE SUR LE PLATEAU                                               */
 /******************************************************************************/
-void placerLettre(char contenu_plateau[15][15][2], char lettre_selectionnee, Point p)
+void placerLettre(char contenu_plateau[15][15][2], char lettre_selectionnee, Point p_plateau, Point p_main)
 	{
 	char chemin[16];
 
 	sprintf(chemin, "./Images/%c.bmp", lettre_selectionnee);
-	afficher_image(chemin, p);
+	afficher_image(chemin, p_plateau);
+	dessiner_rectangle(p_main, 48, 48, blanc);
+	entourerCase(p_main, noir);
 	actualiser();
 	}
 
@@ -707,6 +710,16 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[7])
 		{
 		p = attendre_clic();
 		} while( (estDansMainJoueur(p, joueur) == 0 || lettreDejaPosee(lettres_placees, p)==1) && clicBoutonValide(p)==0);
+
+	if(!((p.x>385 && p.x<616) && (p.y>920 && p.y<990)))
+		{
+		p.y = (p.y-272) - ((p.y-272) % 68) + 272;
+
+		if(joueur == 1)
+			p.x = 26;
+		else
+			p.x = 926;
+		}
 
 	return p;
 	}
