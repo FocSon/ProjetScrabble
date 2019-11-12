@@ -143,6 +143,7 @@ int main()
 					{
 					reinitTour(emplacement_lettre_old, lettres_placees, contenu_plateau, mains, joueur, case_main_joueur[joueur-1]);
 					tourBoucle=0;
+					comptLettre=0;
 					}
 				
 				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees);
