@@ -34,7 +34,8 @@ Lettres initialiserLettres();
 
 char tirerLettre(Lettres *indexLettre, int indexTirage[27]);
 int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
-int motValable(char motUtilise[] ,char dicoTab[SIZEDICO][MAXLENMOT], int);
+int motValable(char motUtilise[15] ,char dicoTab[SIZEDICO][MAXLENMOT], int);
+int lireMots(char mot[15], char contenu_plateau[15][15][2], char dicoTab[SIZEDICO][MAXLENMOT], int);
 
 Point detecter_case(Point);													/************************/									
 int estDansPlateau(Point);													/* Placer les lettres	*/
@@ -74,6 +75,8 @@ int main()
 	char contenu_plateau[15][15][2];									//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
 	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 	
+	char mot[15];
+
 	Lettres indexLettre=initialiserLettres();							//initalise la valeur des lettres ainsi que le n,ombre de jetons
 	
 	char dicoTab[SIZEDICO][MAXLENMOT];									//Le dictionnaire
@@ -125,20 +128,25 @@ int main()
 
 	while(1)
 		{
-		while(1)
+
+		do
 			{
-			
-			emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees);
-			if(clicBoutonValide(emplacement_lettre_selectionnee)==1 && comptLettre>=1)
-				break;
-			lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
-			lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-			emplacement_lettre = attendrePlacerLettre(contenu_plateau, autours, comptLettre, emplacement_lettre_old);
-			updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
-			placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
-			
-			comptLettre++;
-			}
+			while(1)
+				{
+				
+				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees);
+				if(clicBoutonValide(emplacement_lettre_selectionnee)==1 && comptLettre>=1)
+					break;
+				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
+				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
+				emplacement_lettre = attendrePlacerLettre(contenu_plateau, autours, comptLettre, emplacement_lettre_old);
+				updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
+				placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
+				
+				comptLettre++;
+				}
+			} while (lireMots(mot, contenu_plateau, dicoTab, nbMotDico) == 0);
+
 		updateMainJoueur(mains, joueur, lettres_placees, indexLettre, indexTirage);
 		cacherMainJoueur(case_main_joueur[joueur-1], joueur);
 		razAnciennesLettres(emplacement_lettre_old, lettres_placees);
@@ -430,7 +438,7 @@ int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
 /******************************************************************************/
 /* MOT VALABLE                                                                */
 /******************************************************************************/
-int motValable(char motUtilise[], char dicoTab[SIZEDICO][MAXLENMOT], int nbMotDico)
+int motValable(char motUtilise[15], char dicoTab[SIZEDICO][MAXLENMOT], int nbMotDico)
 	{	
 	int debut=0, fin=nbMotDico, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
 	
@@ -794,8 +802,72 @@ char compDirection(Point lettre1, Point lettre2, Point lettre3)
 	return 0;
 	}
 
+int lireMots(char mot[15], char contenu_plateau[15][15][2], char dicoTab[SIZEDICO][MAXLENMOT], int nbMotDico)
+	{
+	int a, i, j, k, l, m=0;
+	int mot_mauvais = 0;
 
+	for(a=0; a<15; a++)
+		mot[a] = ' ';
 
+	for(i=0; i<15; i++)
+		{
+		for(j=0; j<15; j++)
+			{
+			if(contenu_plateau[i][j][0] != ' ')
+				{
+				mot[m] = contenu_plateau[i][j][0];
+				m++;
+
+				if(contenu_plateau[i][j+1][0] == ' ')
+					{
+					mot[m]='\0';
+					printf("%s\n", mot);
+					if(motValable(mot, dicoTab, nbMotDico) == 0)
+						mot_mauvais++;
+
+					for(a=0; a<15; a++)
+						mot[a] = ' ';
+					m=0;
+					}
+				}
+			}
+		}
+
+	for(a=0; a<15; a++)
+		mot[a] = ' ';
+
+	for(k=0; k<15; k++)
+		{
+		for(l=0; l<15; l++)
+			{
+			if(contenu_plateau[l][k][0] != ' ')
+				{
+				mot[m] = contenu_plateau[l][k][0];
+				m++;
+
+				if(contenu_plateau[l+1][k][0] == ' ')
+					{
+					mot[m]='\0';																				//initialisation des variables repères pour la recherche dichotomique	
+					printf("%s\n", mot);
+					if(motValable(mot, dicoTab, nbMotDico) == 0)
+						mot_mauvais++;
+
+					for(a=0; a<15; a++)
+						mot[a] = ' ';
+					m=0;
+					}
+				}
+			}
+		}
+	printf("%d\n", mot_mauvais);
+
+	if(mot_mauvais!=0)
+		return 0;
+
+	return 1;
+
+	}
 
 
 
