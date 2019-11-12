@@ -47,7 +47,7 @@ int peutPlacer(char contenu_plateau[15][15][2], Point, int autours[4]);
 Point attendreSelectionLettre(int, Point lettres_placees[7]);
 char selectionLettre(int, char mains[2][7], Point);
 void placerLettre(char contenu_plateau[15][15][2], char, Point, Point);
-Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int, Point emplacement_lettre_old[15]);
+Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int, Point emplacement_lettre_old[15], int);
 void entourerCase(Point, Couleur);
 int estDansMainJoueur(Point, int);
 void updateMainJoueur(char mains[2][7], int, Point lettres_placees[7], Lettres*, int indexTirage[27]);
@@ -107,34 +107,17 @@ int main()
 	Point emplacement_lettre;
 	Point emplacement_lettre_old[15]={0};
 	Point lettres_placees[7]={0};
-	Point emplacement_lettre_tab;
 
 	int joueur = 1;
-	int comptLettre=1;
+	int comptLettre=0;
 	int tourBoucle=0;
+	int numCoup=0;
 	
 	afficherMainJoueur(case_main_joueur[0], mains, 1);
 	cacherMainJoueur(case_main_joueur[1],2);
-	
-	emplacement_lettre_selectionnee = attendreSelectionLettre(joueur,lettres_placees);							//premier tour selection lettre
-	lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-	lettres_placees[0]=emplacement_lettre_selectionnee;
-
-	do
-		{
-		emplacement_lettre = attendre_clic();													//premier tour recup pos clic et verif
-		emplacement_lettre_tab = convertirEnCaseTableau(emplacement_lettre);
-		} while(emplacement_lettre_tab.x != 7|| emplacement_lettre_tab.y != 7);
-		
-	emplacement_lettre=detecter_case(emplacement_lettre);
-	emplacement_lettre_old[0]=emplacement_lettre;										//finaliser le tour
-	updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
-	placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
-
 
 	while(1)
 		{
-
 		do
 			{
 			while(1)
@@ -145,13 +128,16 @@ int main()
 					tourBoucle=0;
 					comptLettre=0;
 					}
-				
+				printf("pre ici\n");
 				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees);
+				printf("pre la\n");
 				if(clicBoutonValide(emplacement_lettre_selectionnee)==1 && comptLettre>=1)
 					break;
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-				emplacement_lettre = attendrePlacerLettre(contenu_plateau, autours, comptLettre, emplacement_lettre_old);
+				printf("ici\n");
+				emplacement_lettre = attendrePlacerLettre(contenu_plateau, autours, comptLettre, emplacement_lettre_old, numCoup);
+				printf("la\n");
 				updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
 				placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
 				
@@ -165,6 +151,7 @@ int main()
 		razAnciennesLettres(emplacement_lettre_old, lettres_placees);
 		comptLettre=0;
 		tourBoucle=0;
+		numCoup++;
 		if(joueur == 1)
 			joueur ++;
 		else
@@ -752,10 +739,23 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[7])
 /******************************************************************************/
 /* ATTENDRE PLACER LETTRE                                                     */
 /******************************************************************************/
-Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int comptLettre, Point emplacement_lettre_old[15])
+Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int comptLettre, Point emplacement_lettre_old[15], int num_coup)
 	{
 	Point emplacement_lettre;
-	printf("comptlettre dans fonction attendre placer a : %d\n", comptLettre);
+	printf("comptlettre dans fonction attendre placer a : %d et au coup :%d\n", comptLettre, num_coup);
+	if(num_coup==0 && comptLettre==0)
+		{
+		Point caseDansTableau;
+		do
+			{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
+			emplacement_lettre=attendre_clic();								//on attend un clic
+			emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
+			emplacement_lettre_old[comptLettre]=emplacement_lettre;
+			caseDansTableau=convertirEnCaseTableau(emplacement_lettre);
+			printf("emplacement lettre : x:%d y:%d\n", caseDansTableau.x, caseDansTableau.y);
+			} while (caseDansTableau.x!=7 || caseDansTableau.y!=7);
+		return emplacement_lettre;
+		}
 	if(comptLettre<2)
 		{
 		printf("dans boucle <2\n");
@@ -901,7 +901,9 @@ void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[15][1
 	Point case_tableau_old;
 	case_tableau_old=convertirEnCaseTableau(emplacement_lettre_old);
 	
-	if(contenu_plateau[case_tableau_old.y][case_tableau_old.x][1]=='m')
+	if(case_tableau_old.y==7 && case_tableau_old.x==7)
+		afficher_image("./Images/case_centre.bmp", emplacement_lettre_old);
+	else if(contenu_plateau[case_tableau_old.y][case_tableau_old.x][1]=='m')
 		afficher_image("./Images/case_mot_compte_double.bmp", emplacement_lettre_old);
 	else if(contenu_plateau[case_tableau_old.y][case_tableau_old.x][1]=='M')
 		afficher_image("./Images/case_mot_compte_triple.bmp", emplacement_lettre_old);
