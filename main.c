@@ -13,6 +13,8 @@
 #define SIZEDICO 319000                         						// taille large du dico
 #define MAXLENMOT 26                            						// taille du mot max
 
+#define TAILLE_PLATEAU 15
+
 #define DEBUG 1
 
 typedef struct{															//structure qui contiens :
@@ -27,7 +29,7 @@ int traitement_choix(Point);
 
 void afficher_plateau();
 
-void initPoints(char plateau[15][15][2]);
+void initPoints(char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
 
 void initIndexTirage(int indexTirage[27], Lettres);
 Lettres initialiserLettres();
@@ -36,26 +38,26 @@ char tirerLettre(Lettres *indexLettre, int indexTirage[27]);
 void actualiser_pioche(int indexTirage[27], int compteur);
 
 int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
-int motValable(char motUtilise[15] ,char dicoTab[SIZEDICO][MAXLENMOT], int);
-int lireMots(char mot[15], char contenu_plateau[15][15][2], char dicoTab[SIZEDICO][MAXLENMOT], int);
+int motValable(char motUtilise[TAILLE_PLATEAU] ,char dicoTab[SIZEDICO][MAXLENMOT], int);
+int lireMots(char mot[TAILLE_PLATEAU], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char dicoTab[SIZEDICO][MAXLENMOT], int);
 
 Point detecter_case(Point);													/************************/									
 int estDansPlateau(Point);													/* Placer les lettres	*/
-int CaseEstLibre(Point, char plateau[15][15][2]);							/************************/	
-int peutPlacer(char contenu_plateau[15][15][2], Point, int autours[4]);
+int CaseEstLibre(Point, char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);							/************************/	
+int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point, int autours[4]);
 
 Point attendreSelectionLettre(int, Point lettres_placees[7]);
 char selectionLettre(int, char mains[2][7], Point);
-void placerLettre(char contenu_plateau[15][15][2], char, Point, Point);
-Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int, Point emplacement_lettre_old[15], int);
+void placerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char, Point, Point);
+Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int autours[4], int, Point emplacement_lettre_old[TAILLE_PLATEAU], int);
 void entourerCase(Point, Couleur);
 int estDansMainJoueur(Point, int);
 void updateMainJoueur(char mains[2][7], int, Point lettres_placees[7], Lettres*, int indexTirage[27]);
 int lettreDejaPosee(Point lettres_placees[7], Point lettre_selectionnee);
 
-void initContenuPlateau(char plateau[15][15][2]);						//fonctions en relation avec la plateau
+void initContenuPlateau(char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);						//fonctions en relation avec la plateau
 void initMainJoueur(char mains[2][7], int indextirage[27], Lettres*);
-void updateContenuPlateau(char plateau[15][15][2], Point, char);					//
+void updateContenuPlateau(char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point, char);					//
 
 void afficherMainJoueur(Point, char mains[2][7], int);
 void cacherMainJoueur(Point pos_case, int joueur);
@@ -63,11 +65,11 @@ void cacherMainJoueur(Point pos_case, int joueur);
 Point convertirEnCaseTableau(Point clic);
 
 int clicBoutonValide(Point);
-void razAnciennesLettres(Point emplacement_lettre_old[15], Point lettres_placees[7]);
-char compDirection(Point, Point, Point);
+void razAnciennesLettres(Point emplacement_lettre_old[TAILLE_PLATEAU], Point lettres_placees[7]);
+char compDirection(Point, Point);
 
-void reinitTour(Point emplacement_lettre_old[7], Point lettre_placees[7], char contenu_plateau[15][15][2], char mains[2][7], int, Point);
-void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[15][15][2]);
+void reinitTour(Point emplacement_lettre_old[7], Point lettre_placees[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int, Point);
+void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
 
 
 /******************************************************************************/
@@ -77,10 +79,10 @@ int main()
 	{
 	ouvrir_fenetre(RESH, RESV);											//ouvre la session graphique
 	
-	char contenu_plateau[15][15][2];									//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
+	char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2];									//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
 	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 	
-	char mot[15];
+	char mot[TAILLE_PLATEAU];
 
 	Lettres indexLettre=initialiserLettres();							//initalise la valeur des lettres ainsi que le n,ombre de jetons
 	
@@ -105,7 +107,7 @@ int main()
 	Point emplacement_lettre_selectionnee;
 	char lettre_selectionnee;
 	Point emplacement_lettre;
-	Point emplacement_lettre_old[15]={0};
+	Point emplacement_lettre_old[TAILLE_PLATEAU]={0};
 	Point lettres_placees[7]={0};
 
 	int joueur = 1;
@@ -160,8 +162,8 @@ int main()
 		afficherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
 
 #if DEBUG
-	for(int b1=0; b1<15; b1++){
-		for(int b2=0; b2<15; b2++){
+	for(int b1=0; b1<TAILLE_PLATEAU; b1++){
+		for(int b2=0; b2<TAILLE_PLATEAU; b2++){
 			printf("%c", contenu_plateau[b1][b2][0]);
 		}
 	printf("\n");														//affichage tableau pour test
@@ -192,6 +194,7 @@ void menu ()															//fonction qui vas s'occuper de traiter les infos rec
 	do 	{
 		do 	{
 			reinitialiser_evenements();
+			attente(50);
 			traiter_evenements();
 
 			pos_souris=deplacement_souris_a_eu_lieu();						//on regarde où est la souris
@@ -288,11 +291,11 @@ void initIndexTirage(int indexTirage[27], Lettres indexLettre)		//tableau qui va
 /******************************************************************************/
 /* INITIALISER POINTS	                                                      */
 /******************************************************************************/
-void initPoints(char plateau[15][15][2])
+void initPoints(char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
 	{
-	for(int lon=0; lon<15; lon++)
+	for(int lon=0; lon<TAILLE_PLATEAU; lon++)
 		{
-		for(int lar=0; lar<15; lar++)
+		for(int lar=0; lar<TAILLE_PLATEAU; lar++)
 			{
 			if( ((lon==lar || (14-lon)==lar) && ((lar>0 && lar<5) || (lar>9 && lar<14) || lar==7)) )
 				plateau[lar][lon][1]='m';								//mot double
@@ -372,27 +375,22 @@ Lettres initialiserLettres()
 /******************************************************************************/
 /* TIRER LETTRE                                                               */
 /******************************************************************************/
-char tirerLettre(Lettres *indexLettre, int indexTirage[27])				//fonction qui attribue les cartes
+char tirerLettre(Lettres * indexLettre,int indexTirage[27])				//fonction qui attribue les cartes
 	{
-	int idLettre=0;
-	int compteur=0;
+	int idLettre=entier_aleatoire(indexTirage[26]);								//102 lettres dans le jeu, pour tirage plus realiste, on pioche parmis les 102 jetons
+	int compteur;
 
-	do
+	for(compteur=0; compteur<27; compteur++)					//parcourir les valeurs du tableau
 		{
-		idLettre = entier_aleatoire(indexTirage[26]);								//102 lettres dans le jeu, pour tirage plus realiste, on pioche parmis les 102 jetons
-
-		for(compteur=0; compteur<27; compteur++)					//parcourir les valeurs du tableau
+		if(idLettre < indexTirage[compteur])							//si le chiffre tiré est inferieur au nombre de jetons cumulés de a jusqu'a la lettre tiré, lui associe l'id de la lettre correspondante
 			{
-			if(idLettre < indexTirage[compteur])							//si le chiffre tiré est inferieur au nombre de jetons cumulés de a jusqu'a la lettre tiré, lui associe l'id de la lettre correspondante
-				{
-				printf("avant %d\n", idLettre);
-				printf("tirage %d", compteur);
-				idLettre=compteur;
-				printf("apres %d\n", idLettre);
-				break;
-				}
+			printf("avant %d\n", idLettre);
+			printf("tirage %d", compteur);
+			idLettre=compteur;
+			printf("apres %d\n", idLettre);
+			break;
 			}
-		}while((*indexLettre).nbJetons[idLettre] == 0);
+		}
 		
 	printf("nb jeton jokair avant retrait : %d\n", (*indexLettre).nbJetons[26]);
 	(*indexLettre).nbJetons[idLettre]-=1;
@@ -416,7 +414,7 @@ void actualiser_pioche(int indexTirage[27], int compteur)
 /* CHARGEDICO                                                                 */
 /******************************************************************************/
 int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
-{
+	{
     FILE *f = fopen(filedico,"r"); // ouverture du fichier
 
     if (!f) // si ouverture ratée
@@ -436,13 +434,13 @@ int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT])
     fclose(f); // fermeture du fichier
     
     return mots;
-}
+	}
 
 
 /******************************************************************************/
 /* MOT VALABLE                                                                */
 /******************************************************************************/
-int motValable(char motUtilise[15], char dicoTab[SIZEDICO][MAXLENMOT], int nbMotDico)
+int motValable(char motUtilise[TAILLE_PLATEAU], char dicoTab[SIZEDICO][MAXLENMOT], int nbMotDico)
 	{	
 	int debut=0, fin=nbMotDico, milieu=(debut+fin)/2;				//initialisation des variables repères pour la recherche dichotomique
 	
@@ -494,7 +492,7 @@ int estDansPlateau(Point p)
 /******************************************************************************/
 /* CASE EST LIBRE ?                                                           */
 /******************************************************************************/
-int CaseEstLibre(Point p, char plateau[15][15][2])
+int CaseEstLibre(Point p, char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
 	{
 	p=convertirEnCaseTableau(p);
 	if(plateau[p.y][p.x][0] == ' ')
@@ -506,13 +504,13 @@ int CaseEstLibre(Point p, char plateau[15][15][2])
 /******************************************************************************/
 /* INITIALISATION CONTENU DU TABLEAU                                          */
 /******************************************************************************/
-void initContenuPlateau(char plateau[15][15][2])
+void initContenuPlateau(char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
 	{
 	int i,j,k;
 	
-	for(i=0; i<15; i++)
+	for(i=0; i<TAILLE_PLATEAU; i++)
 		{
-		for(j=0; j<15; j++)
+		for(j=0; j<TAILLE_PLATEAU; j++)
 			{
 			for(k=0; k<2; k++)
 				plateau[i][j][k] = ' ';
@@ -558,7 +556,7 @@ int lettreDejaPosee(Point lettres_placees[7], Point lettre_selectionnee)
 /******************************************************************************/
 /* UPDATE CONTENU PLATEAU                                                     */
 /******************************************************************************/
-void updateContenuPlateau(char plateau[15][15][2], Point p, char lettre_selectionnee)
+void updateContenuPlateau(char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point p, char lettre_selectionnee)
 	{
 	p=convertirEnCaseTableau(p);
 	
@@ -668,7 +666,7 @@ int estDansMainJoueur(Point p, int joueur)
 /******************************************************************************/
 /* AUTORISE A PLACER ?                                                        */
 /******************************************************************************/
-int peutPlacer(char contenu_plateau[15][15][2], Point clic, int autours[4])
+int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point clic, int autours[4])
 	{	
 	clic=convertirEnCaseTableau(clic);
 	
@@ -700,7 +698,7 @@ int peutPlacer(char contenu_plateau[15][15][2], Point clic, int autours[4])
 /******************************************************************************/
 /* PLACER LETTRE SUR LE PLATEAU                                               */
 /******************************************************************************/
-void placerLettre(char contenu_plateau[15][15][2], char lettre_selectionnee, Point p_plateau, Point p_main)
+void placerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char lettre_selectionnee, Point p_plateau, Point p_main)
 	{
 	char chemin[16];
 
@@ -739,7 +737,7 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[7])
 /******************************************************************************/
 /* ATTENDRE PLACER LETTRE                                                     */
 /******************************************************************************/
-Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int comptLettre, Point emplacement_lettre_old[15], int num_coup)
+Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int autours[4], int comptLettre, Point emplacement_lettre_old[TAILLE_PLATEAU], int num_coup)
 	{
 	Point emplacement_lettre;
 	printf("comptlettre dans fonction attendre placer a : %d et au coup :%d\n", comptLettre, num_coup);
@@ -756,7 +754,7 @@ Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int 
 			} while (caseDansTableau.x!=7 || caseDansTableau.y!=7);
 		return emplacement_lettre;
 		}
-	if(comptLettre<2)
+	if(comptLettre==0)
 		{
 		printf("dans boucle <2\n");
 		do
@@ -775,7 +773,7 @@ Point attendrePlacerLettre(char contenu_plateau[15][15][2], int autours[4], int 
 		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
 		emplacement_lettre_old[comptLettre]=emplacement_lettre;
 		printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
-		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre, autours)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[1], emplacement_lettre_old[comptLettre])==0);
+		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre, autours)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[comptLettre])==0);
 	return emplacement_lettre;
 	}
 
@@ -797,9 +795,9 @@ Point convertirEnCaseTableau(Point clic)
 	return clic;
 	}
 	
-void razAnciennesLettres(Point emplacement_lettre_old[15], Point lettres_placees[7])
+void razAnciennesLettres(Point emplacement_lettre_old[TAILLE_PLATEAU], Point lettres_placees[7])
 	{
-	for(int raz=0;raz<15;raz++)
+	for(int raz=0;raz<TAILLE_PLATEAU;raz++)
 		{
 		emplacement_lettre_old[raz].x=0;
 		emplacement_lettre_old[raz].y=0;
@@ -811,25 +809,25 @@ void razAnciennesLettres(Point emplacement_lettre_old[15], Point lettres_placees
 		}
 	}
 	
-char compDirection(Point lettre1, Point lettre2, Point lettre3)
+char compDirection(Point lettre1, Point lettre2)
 	{
-	printf("appel a la fonction compdirection\n coordonnées des lettres : lettre1.x : %d lettre2.x : %d lettre3.x : %d\n", lettre1.x, lettre2.x, lettre3.x);
-	if( (lettre1.x==lettre2.x && lettre1.x==lettre3.x) || (lettre1.y==lettre2.y && lettre1.y==lettre3.y))
+	printf("appel a la fonction compdirection\n coordonnées des lettres : lettre1.x : %d lettre2.x : %d\n", lettre1.x, lettre2.x);
+	if( (lettre1.x==lettre2.x) || (lettre1.y==lettre2.y))
 		return 1;
 	return 0;
 	}
 
-int lireMots(char mot[15], char contenu_plateau[15][15][2], char dicoTab[SIZEDICO][MAXLENMOT], int nbMotDico)
+int lireMots(char mot[TAILLE_PLATEAU], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char dicoTab[SIZEDICO][MAXLENMOT], int nbMotDico)
 	{
 	int a, i, j, k, l, m=0;
 	int mot_mauvais = 0;
 
-	for(a=0; a<15; a++)
+	for(a=0; a<TAILLE_PLATEAU; a++)
 		mot[a] = ' ';
 
-	for(i=0; i<15; i++)
+	for(i=0; i<TAILLE_PLATEAU; i++)
 		{
-		for(j=0; j<15; j++)
+		for(j=0; j<TAILLE_PLATEAU; j++)
 			{
 			if(contenu_plateau[i][j][0] != ' ')
 				{
@@ -843,7 +841,7 @@ int lireMots(char mot[15], char contenu_plateau[15][15][2], char dicoTab[SIZEDIC
 					if(motValable(mot, dicoTab, nbMotDico) == 0)
 						mot_mauvais++;
 
-					for(a=0; a<15; a++)
+					for(a=0; a<TAILLE_PLATEAU; a++)
 						mot[a] = ' ';
 					m=0;
 					}
@@ -851,12 +849,12 @@ int lireMots(char mot[15], char contenu_plateau[15][15][2], char dicoTab[SIZEDIC
 			}
 		}
 
-	for(a=0; a<15; a++)
+	for(a=0; a<TAILLE_PLATEAU; a++)
 		mot[a] = ' ';
 
-	for(k=0; k<15; k++)
+	for(k=0; k<TAILLE_PLATEAU; k++)
 		{
-		for(l=0; l<15; l++)
+		for(l=0; l<TAILLE_PLATEAU; l++)
 			{
 			if(contenu_plateau[l][k][0] != ' ')
 				{
@@ -870,7 +868,7 @@ int lireMots(char mot[15], char contenu_plateau[15][15][2], char dicoTab[SIZEDIC
 					if(motValable(mot, dicoTab, nbMotDico) == 0)
 						mot_mauvais++;
 
-					for(a=0; a<15; a++)
+					for(a=0; a<TAILLE_PLATEAU; a++)
 						mot[a] = ' ';
 					m=0;
 					}
@@ -886,7 +884,7 @@ int lireMots(char mot[15], char contenu_plateau[15][15][2], char dicoTab[SIZEDIC
 
 	}
 
-void reinitTour(Point emplacement_lettre_old[7], Point lettres_placees[7], char contenu_plateau[15][15][2], char mains[2][7], int joueur, Point case_main_joueur)
+void reinitTour(Point emplacement_lettre_old[7], Point lettres_placees[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int joueur, Point case_main_joueur)
 	{
 	for(int compteur=0; compteur<7; compteur++)
 		if(emplacement_lettre_old[compteur].x!=0 && emplacement_lettre_old[compteur].y!=0)
@@ -896,7 +894,7 @@ void reinitTour(Point emplacement_lettre_old[7], Point lettres_placees[7], char 
 	razAnciennesLettres(emplacement_lettre_old, lettres_placees);
 	}
 
-void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[15][15][2])
+void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
 	{
 	Point case_tableau_old;
 	case_tableau_old=convertirEnCaseTableau(emplacement_lettre_old);
