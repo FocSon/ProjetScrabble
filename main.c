@@ -73,6 +73,8 @@ void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILL
 
 void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2]);
 void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2]);
+void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
+int clicBoutonSauver(Point clic);
 
 /******************************************************************************/
 /* MAIN		                                                                  */
@@ -96,22 +98,23 @@ int main()
 	
 	char mains[2][7];											//Tableau qui vas stocker les cartes
 
-	initPoints(contenu_plateau);
 	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
+	initPoints(contenu_plateau);
 
 	int autours[4];
 	
 	int score[2];
+
+	afficher_plateau();
 
 	if(charger==0)
 		initMainJoueur(mains, indexTirage, &indexLettre);
 
 	else
 		{
+		chargerSauvegarde(contenu_plateau, mains, score);
 		}
-
-	afficher_plateau();
-
+		
 	Point case_main_joueur[2] = {{26, 272},{926, 272}};
 	
 	Point emplacement_lettre_selectionnee;
@@ -140,16 +143,12 @@ int main()
 					tourBoucle=0;
 					comptLettre=0;
 					}
-				printf("pre ici\n");
 				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees);
-				printf("pre la\n");
-				if(clicBoutonValide(emplacement_lettre_selectionnee)==1 && comptLettre>=1)
+				if((clicBoutonValide(emplacement_lettre_selectionnee)==1 && comptLettre>=1) || clicBoutonSauver(emplacement_lettre_selectionnee)==1)
 					break;
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-				printf("ici\n");
 				emplacement_lettre = attendrePlacerLettre(contenu_plateau, autours, comptLettre, emplacement_lettre_old, numCoup);
-				printf("la\n");
 				updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
 				placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
 				
@@ -159,6 +158,12 @@ int main()
 			} while (lireMots(mot, contenu_plateau, dicoTab, nbMotDico) == 0);
 
 		updateMainJoueur(mains, joueur, lettres_placees, &indexLettre, indexTirage);
+		if(clicBoutonSauver(emplacement_lettre_selectionnee)==1)
+			{
+			sauvegarder(contenu_plateau, mains, score);
+			fermer_fenetre();
+			return 0;
+			}
 		cacherMainJoueur(case_main_joueur[joueur-1], joueur);
 		razAnciennesLettres(emplacement_lettre_old, lettres_placees);
 		comptLettre=0;
@@ -731,9 +736,9 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[7])
 	do
 		{
 		p = attendre_clic();
-		} while( (estDansMainJoueur(p, joueur) == 0 || lettreDejaPosee(lettres_placees, p)==1) && clicBoutonValide(p)==0);
+		} while( (estDansMainJoueur(p, joueur) == 0 || lettreDejaPosee(lettres_placees, p)==1) && (clicBoutonValide(p)==0 && clicBoutonSauver(p)==0));
 
-	if(!((p.x>385 && p.x<616) && (p.y>920 && p.y<990)))
+	if(!((p.x>385 && p.x<616) && (p.y>920 && p.y<990)) && clicBoutonSauver(p)==0)
 		{
 		p.y = (p.y-272) - ((p.y-272) % 68) + 272;
 
@@ -963,11 +968,77 @@ void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char m
 				fprintf(save_plateau, "%c", contenu_plateau[compteurDim1][compteurDim2][0]);
 		fclose(save_plateau);
 		}
-		
 	}
 
+void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2])
+	{
+	int compteurDim1;
+	int compteurDim2;
+	char contenu[300];
+	
+	FILE* save_score=fopen("./Save/save.score", "r");
+	if(!save_score)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier score");
+	else
+		{
+		fscanf(save_score, "%d,%d,", &score[0], &score[1]);
+		fclose(save_score);
+		}
+		
+	FILE* save_mains=fopen("./Save/save.mains", "r");
+	if(!save_mains)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier mains");
+	else
+		{
+		fgets(contenu, 7*2, save_mains);
+		fclose(save_mains);
+		}
+	for(compteurDim1=0; compteurDim1<2; compteurDim1++)
+		for(compteurDim2=0; compteurDim2<7; compteurDim2++)
+			mains[compteurDim1][compteurDim2]=contenu[compteurDim2+(compteurDim1*7)];
+		
+	FILE* save_plateau=fopen("./Save/save.plateau", "r");
+	if(!save_plateau)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier contenu_plateau");
+	else
+		{
+		fgets(contenu, TAILLE_PLATEAU*TAILLE_PLATEAU, save_plateau);
+		fclose(save_plateau);
+		}	
+	for(compteurDim1=0; compteurDim1<TAILLE_PLATEAU; compteurDim1++)
+		for(compteurDim2=0; compteurDim2<TAILLE_PLATEAU; compteurDim2++)
+			contenu_plateau[compteurDim1][compteurDim2][0]=contenu[compteurDim2+(compteurDim1*TAILLE_PLATEAU)];
+			
+	updatePlateauSave(contenu_plateau);
+	}
 
-
+void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
+	{
+	char chemin[16];
+	Point pos={0,0};
+	
+	for(int compteurDim1=0; compteurDim1<TAILLE_PLATEAU; compteurDim1++)
+		{
+		for(int compteurDim2=0; compteurDim2<TAILLE_PLATEAU; compteurDim2++)
+			{
+			if(contenu_plateau[compteurDim1][compteurDim2][0]!=' ')
+				{
+				sprintf(chemin, "./Images/%c.bmp", contenu_plateau[compteurDim1][compteurDim2][0]);
+				pos.x=(ESPACEMENT+BORDURE)+(compteurDim1*(TAILLECASE+BORDURE));
+				pos.y=(ESPACEMENT+BORDURE)+(compteurDim2*(TAILLECASE+BORDURE));
+				afficher_image(chemin, pos);
+				}
+			}
+		}
+	actualiser();
+	}
+	
+int clicBoutonSauver(Point clic)
+	{
+	if(clic.x>670 && clic.x<900 && clic.y>919 && clic.y<989)
+		return 1;
+	return 0;
+	}
 
 
 
