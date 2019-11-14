@@ -71,6 +71,8 @@ char compDirection(Point, Point);
 void reinitTour(Point emplacement_lettre_old[7], Point lettre_placees[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int, Point);
 void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
 
+void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2]);
+void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2]);
 
 /******************************************************************************/
 /* MAIN		                                                                  */
@@ -92,16 +94,21 @@ int main()
 	int indexTirage[27];												//initialisation du tableau nécessaire pour le tirage aléatoire
 	initIndexTirage(indexTirage, indexLettre);							//variable qui vas stoquer l'emplacement de la lettre
 	
-	char mains[2][7]={{' '}};											//Tableau qui vas stocker les cartes
+	char mains[2][7];											//Tableau qui vas stocker les cartes
 
 	initPoints(contenu_plateau);
 
 	int autours[4] = {0};
+	
+	int score[2]={200,250};
 
 	if(charger==0)
 		{
 		initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 		initMainJoueur(mains, indexTirage, &indexLettre);
+		}
+	else
+		{
 		}
 
 	afficher_plateau();
@@ -921,7 +928,45 @@ void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILL
 	contenu_plateau[case_tableau_old.y][case_tableau_old.x][0]=' ';
 	}
 
-
+void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2])
+	{
+	int compteurDim1;
+	int compteurDim2;
+	char contenu[300];
+	
+	FILE* save_score=fopen("Save/save.score", "w");
+	if(!save_score)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier score");
+	else
+		{
+		for(compteurDim1=0; compteurDim1<2; compteurDim1++)
+			fprintf(save_score, "%d,", score[compteurDim1]);
+		fclose(save_score);
+		}
+		
+	FILE* save_mains=fopen("Save/save.mains", "w");
+	if(!save_mains)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier mains");
+	else
+		{
+		for(compteurDim1=0; compteurDim1<2; compteurDim1++)
+			for(compteurDim2=0; compteurDim2<7; compteurDim2++)
+				fprintf(save_mains, "%c", mains[compteurDim1][compteurDim2]);
+		fclose(save_mains);
+		}
+		
+	FILE* save_plateau=fopen("Save/save.plateau", "w");
+	if(!save_plateau)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier contenu_plateau");
+	else
+		{
+		for(compteurDim1=0; compteurDim1<15; compteurDim1++)
+			for(compteurDim2=0; compteurDim2<15; compteurDim2++)
+				fprintf(save_plateau, "%c\n", contenu_plateau[compteurDim1][compteurDim2][0]);
+		fclose(save_plateau);
+		}
+		
+	}
 
 
 
