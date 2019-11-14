@@ -23,7 +23,7 @@ typedef struct{															//structure qui contiens :
 	int nbJetons[27];													//le nombre restant dans le jeu
 	}Lettres;
 
-void menu();
+int menu();
 void survol(Point);
 int traitement_choix(Point);
 
@@ -78,28 +78,32 @@ void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILL
 int main()
 	{
 	ouvrir_fenetre(RESH, RESV);											//ouvre la session graphique
-	
+
 	char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2];									//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
-	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
-	
 	char mot[TAILLE_PLATEAU];
 
-	Lettres indexLettre=initialiserLettres();							//initalise la valeur des lettres ainsi que le n,ombre de jetons
-	
 	char dicoTab[SIZEDICO][MAXLENMOT];									//Le dictionnaire
 	int nbMotDico=chargeDico(FILEDICO, dicoTab);										//initialisation de dicoTab + renvoi la taille du dico dans tailleDico
-		
+	
+	Lettres indexLettre=initialiserLettres();							//initalise la valeur des lettres ainsi que le n,ombre de jetons
+
+	int charger=menu();																//ouvre le menu au joueur
+	
 	int indexTirage[27];												//initialisation du tableau nécessaire pour le tirage aléatoire
 	initIndexTirage(indexTirage, indexLettre);							//variable qui vas stoquer l'emplacement de la lettre
-
-	char mains[2][7]={{' '}};											//Tableau qui vas stocker les cartes
-	initMainJoueur(mains, indexTirage, &indexLettre);
 	
+	char mains[2][7]={{' '}};											//Tableau qui vas stocker les cartes
+
 	initPoints(contenu_plateau);
 
 	int autours[4] = {0};
-	
-	menu();																//ouvre le menu au joueur
+
+	if(charger==0)
+		{
+		initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
+		initMainJoueur(mains, indexTirage, &indexLettre);
+		}
+
 	afficher_plateau();
 
 	Point case_main_joueur[2] = {{26, 272},{926, 272}};
@@ -183,7 +187,7 @@ int main()
 /******************************************************************************/
 /* MENU									                                      */
 /******************************************************************************/
-void menu ()															//fonction qui vas s'occuper de traiter les infos recues durant l'affichage du menu
+int menu ()															//fonction qui vas s'occuper de traiter les infos recues durant l'affichage du menu
 	{
 	Point clic = {0,0};
 	Point pos_souris ={0,0};
@@ -205,10 +209,12 @@ void menu ()															//fonction qui vas s'occuper de traiter les infos rec
 
 		choix=traitement_choix(clic);										//on regarde sur quel bouton l'utilisateur a cliqué
 
-		if(choix==3)
+		if(choix==2)
 			printf("\n\n\nValeurs et nombres de lettres du Scrabble :\n\nLa lettre A	Valeur : 1 point	Nombre : 9 pièces\nLa lettre B	Valeur : 3 points	Nombre : 2 pièces\nLa lettre C	Valeur : 3 points	Nombre : 2 pièces\nLa lettre D	Valeur : 2 points	Nombre : 3 pièces\nLa lettre E	Valeur : 1 point	Nombre : 15 pièces\nLa lettre F	Valeur : 4 points	Nombre : 2 pièces\nLa lettre G	Valeur : 2 points	Nombre : 2 pièces\nLa lettre H	Valeur : 4 points	Nombre : 2 pièces\nLa lettre I	Valeur : 1 point	Nombre : 8 pièces\nLa lettre J	Valeur : 8 points	Nombre : 1 pièce\nLa lettre K	Valeur : 10 points	Nombre : 1 pièce\nLa lettre L	Valeur : 1 point	Nombre : 5 pièces\nLa lettre M	Valeur : 2 points	Nombre : 3 pièces\nLa lettre N	Valeur : 1 point	Nombre : 6 pièces\nLa lettre O	Valeur : 1 point	Nombre : 6 pièces\nLa lettre P	Valeur : 3 points	Nombre : 2 pièces\nLa lettre Q	Valeur : 8 points	Nombre : 1 pièce\nLa lettre R	Valeur : 1 point	Nombre : 6 pièces\nLa lettre S	Valeur : 1 point	Nombre : 6 pièces\nLa lettre T	Valeur : 1 point	Nombre : 6 pièces\nLa lettre U	Valeur : 1 point	Nombre : 6 pièces\nLa lettre V	Valeur : 4 points	Nombre : 2 pièces\nLa lettre W	Valeur : 10 points	Nombre : 1 pièce\nLa lettre X	Valeur : 10 points	Nombre : 1 pièce\nLa lettre Y	Valeur : 10 points	Nombre : 1 pièce\nLa lettre Z	Valeur : 10 points	Nombre : 1 pièce\nJokers	Valeur : 0 point	Nombre : 2 pièces\n\n\n\nLes différentes valeurs des cases :\n\n    Case bleu ciel : Lettre compte double\n    Case bleu foncé : Lettre compte triple\n    Case rose : Mot compte double\n    Case rouge : Mot compte triple\n\n\n\nCommencer une partie de Scrabble :\n\nPour commencer, chaque joueur va tirer au hasard 7 lettres dans le sac. Avec celles-ci, chacun va alors essayer de créer un ou plusieurs mots. Le premier joueur doit obligatoirement poser le premier mot au centre du plateau, sur l’étoile. Ce mot doit être au minimum composé de 2 lettres. Le deuxième joueur doit s’appuyer sur ce mot pour placer le sien et ainsi de suite…\n\nUn joueur peut échanger ses lettres par d’autres en piochant dans le sac mais cela lui fera obligatoirement passer son tour.\n\n\n\nCalcul des scores du Scrabble :\n\nLe score d’un coup est calculé en additionnant la valeur de toutes les lettres des nouveaux mots formés (y compris celles déjà posées sur la grille). Si l’un des lettres du mot est sur une case bleu ciel, bleu foncé, la valeur doit être calculée. Idem pour les cases rose et rouge correspondant au mot compte double et mot compte triple.\n\nA savoir que si un mot est posé sur 2 cases « compte double » ou 2 cases « compte triple », la valeur du mot est alors multipliée par 4 et par 9.\nAttention ! Chaque case multiplicatrice ne sert qu’une fois!\n\nSi l’un des joueurs arrivent à placer ses 7 lettres d’un seul coup, on dit qu’il a fait un « Scrabble« . Ce coup lui rapporte une prime de 50 points.\n\n\n\nComment gagner au Scrabble :\n\nQuand le sac est vide et qu’un des joueurs pose toutes ses lettres, la partie est terminée. Celui-ci prend alors en bonus la valeur des lettres des autres joueurs. Alors, on fait les totaux de points de chacun des joueurs et celui possédant le plus de points gagne la partie de Scrabble.\n\nBon à savoir : L’idéal lors d’une partie de Scrabble est d’avoir un dictionnaire à portée de main afin de vérifier si le mot posé par l’un des joueurs est valable. Cela permettant d’éviter tout litige. Après vérification, si le mot posé n’existe pas, le joueur reprend toutes ses lettres et marque 0 point pour ce coup.\n");
 			
-		}while(choix==3);
+		}while(choix==2);
+		
+	return choix;
 	}
 
 /******************************************************************************/
@@ -256,13 +262,13 @@ int traitement_choix(Point clic)
 	int choix;
 	
 	if(clic.y >821)														//bouton règles
-		choix=3;
+		choix=2;
 	
 	else if(clic.x<400)													//bouton jouer
-		choix=1;
+		choix=0;
 		
 	else 																//bouton charger
-		choix=2;
+		choix=1;
 		
 	return choix;
 	}
