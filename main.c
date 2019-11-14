@@ -97,16 +97,15 @@ int main()
 	char mains[2][7];											//Tableau qui vas stocker les cartes
 
 	initPoints(contenu_plateau);
+	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 
-	int autours[4] = {0};
+	int autours[4];
 	
-	int score[2]={200,250};
+	int score[2];
 
 	if(charger==0)
-		{
-		initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 		initMainJoueur(mains, indexTirage, &indexLettre);
-		}
+
 	else
 		{
 		}
@@ -932,7 +931,6 @@ void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char m
 	{
 	int compteurDim1;
 	int compteurDim2;
-	char contenu[300];
 	
 	FILE* save_score=fopen("Save/save.score", "w");
 	if(!save_score)
@@ -962,7 +960,7 @@ void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char m
 		{
 		for(compteurDim1=0; compteurDim1<15; compteurDim1++)
 			for(compteurDim2=0; compteurDim2<15; compteurDim2++)
-				fprintf(save_plateau, "%c\n", contenu_plateau[compteurDim1][compteurDim2][0]);
+				fprintf(save_plateau, "%c", contenu_plateau[compteurDim1][compteurDim2][0]);
 		fclose(save_plateau);
 		}
 		
