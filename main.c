@@ -44,12 +44,12 @@ int lireMots(char mot[TAILLE_PLATEAU], char contenu_plateau[TAILLE_PLATEAU][TAIL
 Point detecter_case(Point);													/************************/									
 int estDansPlateau(Point);													/* Placer les lettres	*/
 int CaseEstLibre(Point, char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);							/************************/	
-int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point, int autours[4]);
+int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point);
 
 Point attendreSelectionLettre(int, Point lettres_placees[7], int, int);
 char selectionLettre(int, char mains[2][7], Point);
 void placerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char, Point, Point);
-Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int autours[4], int, Point emplacement_lettre_old[TAILLE_PLATEAU], int);
+Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int, Point emplacement_lettre_old[TAILLE_PLATEAU], int);
 void entourerCase(Point, Couleur);
 int estDansMainJoueur(Point, int);
 void updateMainJoueur(char mains[2][7], int, Point lettres_placees[7], Lettres*, int indexTirage[27]);
@@ -66,7 +66,7 @@ Point convertirEnCaseTableau(Point clic);
 
 int clicBouton(Point clic);
 void razAnciennesLettres(Point emplacement_lettre_old[TAILLE_PLATEAU], Point lettres_placees[7]);
-char compDirection(Point, Point);
+char compDirection(Point, Point, Point);
 
 void reinitTour(Point emplacement_lettre_old[7], Point lettre_placees[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int, Point);
 void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
@@ -105,8 +105,6 @@ int main()
 
 	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
 	initPoints(contenu_plateau);
-
-	int autours[4];
 	
 	int scores[2];
 
@@ -156,7 +154,7 @@ int main()
 					break;
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-				emplacement_lettre = attendrePlacerLettre(contenu_plateau, autours, comptLettre, emplacement_lettre_old, numCoup);
+				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup);
 				updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
 				placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
 				
@@ -680,27 +678,18 @@ int estDansMainJoueur(Point p, int joueur)
 /******************************************************************************/
 /* AUTORISE A PLACER ?                                                        */
 /******************************************************************************/
-int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point clic, int autours[4])
+int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point clic)
 	{	
 	clic=convertirEnCaseTableau(clic);
-	
-	for(int c=0; c<4; c++)
-		autours[c]=0;
-	
+
 	int compteur=0;
 	
 	for(int verif=(-1); verif<2;verif+=2)
 		{
 		if( (clic.y+verif<=14 && clic.y+verif>=0) && contenu_plateau[clic.y+verif][clic.x][0]!=' ')
-			{
-			autours[compteur]=(verif+2);							
-			compteur++;													//retourne 1 si lettre en dessous et 3 si lettre au dessus
-			}
-		if( (clic.x+verif<=14 && clic.x+verif>=0) && (contenu_plateau[clic.y][clic.x+verif][0]!=' ') )
-			{
-			autours[compteur]=(verif+3);											//retourne 2 si lettre à droite et 4 si lettre à gauche
 			compteur++;
-			}
+		if( (clic.x+verif<=14 && clic.x+verif>=0) && (contenu_plateau[clic.y][clic.x+verif][0]!=' ') )
+			compteur++;
 		}
 	
 	if(!compteur)
@@ -751,7 +740,7 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[7], int numCoup,
 /******************************************************************************/
 /* ATTENDRE PLACER LETTRE                                                     */
 /******************************************************************************/
-Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int autours[4], int comptLettre, Point emplacement_lettre_old[TAILLE_PLATEAU], int num_coup)
+Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int comptLettre, Point emplacement_lettre_old[TAILLE_PLATEAU], int num_coup)
 	{
 	Point emplacement_lettre;
 	printf("comptlettre dans fonction attendre placer a : %d et au coup :%d\n", comptLettre, num_coup);
@@ -768,7 +757,7 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][
 			} while (caseDansTableau.x!=7 || caseDansTableau.y!=7);
 		return emplacement_lettre;
 		}
-	if(comptLettre==0)
+	if(comptLettre<2)
 		{
 		printf("dans boucle <2\n");
 		do
@@ -777,7 +766,7 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][
 			emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
 			emplacement_lettre_old[comptLettre]=emplacement_lettre;
 			printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
-			} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre, autours)==0);
+			} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0);
 		return emplacement_lettre;
 		}
 		
@@ -787,7 +776,7 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][
 		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
 		emplacement_lettre_old[comptLettre]=emplacement_lettre;
 		printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
-		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre, autours)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[comptLettre])==0);
+		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[1], emplacement_lettre_old[comptLettre])==0);
 	return emplacement_lettre;
 	}
 
@@ -813,10 +802,10 @@ void razAnciennesLettres(Point emplacement_lettre_old[TAILLE_PLATEAU], Point let
 		}
 	}
 	
-char compDirection(Point lettre1, Point lettre2)
+char compDirection(Point lettre1, Point lettre2, Point lettre3)
 	{
 	printf("appel a la fonction compdirection\n coordonnées des lettres : lettre1.x : %d lettre2.x : %d\n", lettre1.x, lettre2.x);
-	if( (lettre1.x==lettre2.x) || (lettre1.y==lettre2.y))
+	if( ((lettre1.x==lettre3.x) || (lettre1.y==lettre3.y)) && ((lettre2.x==lettre3.x) || (lettre2.y==lettre3.y)) )
 		return 1;
 	return 0;
 	}
