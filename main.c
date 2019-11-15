@@ -541,7 +541,7 @@ void updateMainJoueur(char mains[2][7], int joueur, Point lettres_placees[7], Le
 		printf("index tirage position %d : %d\n", i, indexTirage[i]);
 		
 	for(int compteur=0; compteur<7; compteur++)
-		if(lettres_placees[compteur].x != 0 && lettres_placees[compteur].y!=0)
+		if(lettres_placees[compteur].x && lettres_placees[compteur].y)
 			{
 			lettres_placees[compteur].y = ((lettres_placees[compteur].y - 272) - (lettres_placees[compteur].y - 272) % 68)/68;
 			mains[joueur-1][lettres_placees[compteur].y] = tirerLettre(indexLettre, indexTirage);
@@ -554,7 +554,7 @@ int lettreDejaPosee(Point lettres_placees[7], Point lettre_selectionnee)
 	lettre_selectionnee.y = ((lettre_selectionnee.y - 272) - (lettre_selectionnee.y - 272) % 68)/68;
 	int temp;
 	for(int compteur=0; compteur<7; compteur++)
-		if(lettres_placees[compteur].x != 0 && lettres_placees[compteur].y!=0)
+		if(lettres_placees[compteur].x && lettres_placees[compteur].y)
 			{
 			temp = ((lettres_placees[compteur].y - 272) - (lettres_placees[compteur].y - 272) % 68)/68;
 			if(temp==lettre_selectionnee.y)
@@ -708,7 +708,7 @@ int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point cl
 			}
 		}
 	
-	if(compteur==0)
+	if(!compteur)
 		return 0;
 	
 	return 1;
@@ -740,7 +740,7 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[7])
 		p = attendre_clic();
 		} while( (estDansMainJoueur(p, joueur) == 0 || lettreDejaPosee(lettres_placees, p)==1) && (clicBoutonValide(p)==0 && clicBoutonSauver(p)==0));
 
-	if(!((p.x>385 && p.x<616) && (p.y>920 && p.y<990)) && clicBoutonSauver(p)==0)
+	if(!((p.x>385 && p.x<616) && (p.y>920 && p.y<990)) && !clicBoutonSauver(p))
 		{
 		p.y = (p.y-272) - ((p.y-272) % 68) + 272;
 
@@ -905,7 +905,7 @@ int lireMots(char mot[TAILLE_PLATEAU], char contenu_plateau[TAILLE_PLATEAU][TAIL
 void reinitTour(Point emplacement_lettre_old[7], Point lettres_placees[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int joueur, Point case_main_joueur)
 	{
 	for(int compteur=0; compteur<7; compteur++)
-		if(emplacement_lettre_old[compteur].x!=0 && emplacement_lettre_old[compteur].y!=0)
+		if(emplacement_lettre_old[compteur].x && emplacement_lettre_old[compteur].y)
 			actualiser_plateau(emplacement_lettre_old[compteur], contenu_plateau);
 	
 	afficherMainJoueur(case_main_joueur, mains, joueur);
@@ -1053,7 +1053,7 @@ int score(int scoreJoueur, Point emplacement_lettre_old[7], char contenu_plateau
 	int multMot=0;
 	int scoreTour=0;
 	
-	for(compteur=0; compteur<7 && emplacement_lettre_old[compteur].x!=0; compteur++)
+	for(compteur=0; compteur<7 && emplacement_lettre_old[compteur].x; compteur++)
 		{
 		emplacement_lettre_old[compteur]=convertirEnCaseTableau(emplacement_lettre_old[compteur]);
 		lettre=contenu_plateau[emplacement_lettre_old[compteur].y][emplacement_lettre_old[compteur].x][0];
