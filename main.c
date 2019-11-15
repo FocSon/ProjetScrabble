@@ -81,6 +81,8 @@ int multiplicateurMot(char);
 
 void switchValiderPasser(int numCoup, int comptLettre);
 
+void piocher(char mains[2][7], Lettres *, int indexTirage[27], int);
+
 /******************************************************************************/
 /* MAIN		                                                                  */
 /******************************************************************************/
@@ -150,8 +152,13 @@ int main()
 					comptLettre=0;
 					}
 				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees, numCoup, comptLettre);
-				if(clicBouton(emplacement_lettre_selectionnee))
+				if(clicBouton(emplacement_lettre_selectionnee)==1 || clicBouton(emplacement_lettre_selectionnee)==3)
 					break;
+				else if(clicBouton(emplacement_lettre_selectionnee)==2)
+					{
+					piocher(mains, &indexLettre, indexTirage, joueur);
+					break;
+					}
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
 				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup);
@@ -1082,12 +1089,42 @@ void switchValiderPasser(int numCoup, int comptLettre)
 		afficher_image("./Images/bouton_valider.bmp", afficherBouton);
 	actualiser();
 	}
+	
+void piocher(char mains[2][7], Lettres * indexLettre, int indexTirage[27], int joueur)
+	{
+	Point lettre_a_changer[7];
+	int compteur;
+	
+	switchValiderPasser(1, 1);
+	
+	printf("Selectionnez les lettres que vous souhaitez changer puis appuyez sur valider\n");
+	
+	for(compteur=0; compteur<7; compteur++)
+		{
+		lettre_a_changer[compteur].x=0;
+		lettre_a_changer[compteur].y=0;
+		}
+	
+	for(compteur=0; compteur<7 && clicBouton(lettre_a_changer[compteur-1])!=1; compteur++)
+		{
+		do{
+			lettre_a_changer[compteur]=attendreSelectionLettre(joueur, lettre_a_changer, 1, 0);
+			}while(clicBouton(lettre_a_changer[compteur])==2 || clicBouton(lettre_a_changer[compteur])==3);
+		if(clicBouton(lettre_a_changer[compteur])!=1)
+			selectionLettre(joueur, mains, lettre_a_changer[compteur]);
+		}
+	updateMainJoueur(mains, joueur, lettre_a_changer, indexLettre, indexTirage);
+	}
 
 
 
 
 
-
+//clic sur le bouton piocher
+//clic sur les lettres à changer
+//clic sur valide
+//pioche les lettres
+//fin de tour normale
 
 
 
