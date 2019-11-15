@@ -473,7 +473,7 @@ int motValable(char motUtilise[TAILLE_PLATEAU], char dicoTab[SIZEDICO][MAXLENMOT
 
 #if DEBUG
 		printf("milieu :%d	debut : %d	fin : %d\n", milieu, debut, fin);
-		printf("mot dico : %s\nmot à trouver : %s",dicoTab[milieu], motUtilise);
+		printf("mot dico : .%s.\nmot à trouver : .%s.",dicoTab[milieu], motUtilise);
 		printf("\n");
 #endif
 		}
@@ -580,6 +580,15 @@ void updateContenuPlateau(char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point
 	p=convertirEnCaseTableau(p);
 	
 	plateau[p.y][p.x][0] = lettre_selectionnee;
+	
+#if DEBUG
+	for(int b1=0; b1<TAILLE_PLATEAU; b1++){
+		for(int b2=0; b2<TAILLE_PLATEAU; b2++){
+			printf("%c", plateau[b1][b2][0]);
+		}
+		printf("\n");
+	}
+#endif
 	}
 
 /******************************************************************************/
@@ -842,7 +851,7 @@ int lireMots(char mot[TAILLE_PLATEAU], char contenu_plateau[TAILLE_PLATEAU][TAIL
 	int mot_mauvais = 0;
 
 	for(a=0; a<TAILLE_PLATEAU; a++)
-		mot[a] = ' ';
+		mot[a] = '\0';
 
 	for(i=0; i<TAILLE_PLATEAU; i++)
 		{
@@ -855,40 +864,39 @@ int lireMots(char mot[TAILLE_PLATEAU], char contenu_plateau[TAILLE_PLATEAU][TAIL
 
 				if(contenu_plateau[i][j+1][0] == ' ')
 					{
-					mot[m]='\0';
 					printf("%s\n", mot);
 					if(motValable(mot, dicoTab, nbMotDico) == 0)
 						mot_mauvais++;
 
 					for(a=0; a<TAILLE_PLATEAU; a++)
-						mot[a] = ' ';
+						mot[a] = '\0';
 					m=0;
 					}
 				}
 			}
 		}
-
 	for(a=0; a<TAILLE_PLATEAU; a++)
-		mot[a] = ' ';
-
+		mot[a] = '\0';
+	m=0;
+		
 	for(k=0; k<TAILLE_PLATEAU; k++)
 		{
 		for(l=0; l<TAILLE_PLATEAU; l++)
 			{
 			if(contenu_plateau[l][k][0] != ' ')
 				{
+				printf(".%c.", contenu_plateau[l][k][0]);
 				mot[m] = contenu_plateau[l][k][0];
 				m++;
 
 				if(contenu_plateau[l+1][k][0] == ' ')
 					{
-					mot[m]='\0';																				//initialisation des variables repères pour la recherche dichotomique	
 					printf("%s\n", mot);
 					if(motValable(mot, dicoTab, nbMotDico) == 0)
 						mot_mauvais++;
 
 					for(a=0; a<TAILLE_PLATEAU; a++)
-						mot[a] = ' ';
+						mot[a] = '\0';
 					m=0;
 					}
 				}
