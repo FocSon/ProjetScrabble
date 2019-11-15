@@ -79,6 +79,7 @@ int score(int, Point emplacement_lettre_old[7], char contenu_plateau[TAILLE_PLAT
 int multiplicateurLettre(char);
 int multiplicateurMot(char);
 
+void switchValiderPasser(int numCoup, int comptLettre);
 
 /******************************************************************************/
 /* MAIN		                                                                  */
@@ -113,7 +114,6 @@ int main()
 
 	int numCoup=0;
 	int joueur = 1;
-	Point afficherBouton={100,919};
 
 	if(!charger)
 		initMainJoueur(mains, indexTirage, &indexLettre);
@@ -144,11 +144,7 @@ int main()
 			{
 			while(1)
 				{
-				if(comptLettre==0 && numCoup)
-					afficher_image("./Images/bouton_passer.bmp", afficherBouton);
-				else if(comptLettre==1 || !numCoup)
-					afficher_image("./Images/bouton_valider.bmp", afficherBouton);
-				actualiser();
+				switchValiderPasser(numCoup, comptLettre);
 				if(tourBoucle)			//si la validation n'est pas ok
 					{
 					reinitTour(emplacement_lettre_old, lettres_placees, contenu_plateau, mains, joueur, case_main_joueur[joueur-1]);
@@ -538,10 +534,7 @@ void initMainJoueur(char mains[2][7], int indexTirage[27], Lettres * indexLettre
 	}
 	
 void updateMainJoueur(char mains[2][7], int joueur, Point lettres_placees[7], Lettres * indexLettre, int indexTirage[27])
-	{
-	for(int i=0; i<27; i++)
-		printf("index tirage position %d : %d\n", i, indexTirage[i]);
-		
+	{		
 	for(int compteur=0; compteur<7; compteur++)
 		if(lettres_placees[compteur].x && lettres_placees[compteur].y)
 			{
@@ -1091,10 +1084,15 @@ int multiplicateurMot(char codeMultMot)
 
 
 
-
-
-
-
+void switchValiderPasser(int numCoup, int comptLettre)
+	{
+	Point afficherBouton={100,919};
+	if(comptLettre==0 && numCoup)
+		afficher_image("./Images/bouton_passer.bmp", afficherBouton);
+	else if(comptLettre==1 || !numCoup)
+		afficher_image("./Images/bouton_valider.bmp", afficherBouton);
+	actualiser();
+	}
 
 
 
