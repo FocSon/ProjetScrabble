@@ -82,6 +82,7 @@ int multiplicateurMot(char);
 void switchValiderPasser(int numCoup, int comptLettre);
 
 void piocher(char mains[2][7], Lettres *, int indexTirage[27], int);
+int piecesRestantes(int indexTirage[27]);
 
 /******************************************************************************/
 /* MAIN		                                                                  */
@@ -138,7 +139,7 @@ int main()
 	afficherMainJoueur(case_main_joueur[joueur-1], mains, 1);
 	cacherMainJoueur(case_main_joueur[joueur%2],2);
 
-	while(1)
+	while(piecesRestantes(indexTirage)>0)
 		{
 		do
 			{
@@ -154,7 +155,7 @@ int main()
 				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees, numCoup, comptLettre);
 				if(clicBouton(emplacement_lettre_selectionnee)==1 || clicBouton(emplacement_lettre_selectionnee)==3)
 					break;
-				else if(clicBouton(emplacement_lettre_selectionnee)==2)
+				else if(clicBouton(emplacement_lettre_selectionnee)==2 && piecesRestantes(indexTirage)>7)
 					{
 					piocher(mains, &indexLettre, indexTirage, joueur);
 					break;
@@ -1116,7 +1117,15 @@ void piocher(char mains[2][7], Lettres * indexLettre, int indexTirage[27], int j
 	updateMainJoueur(mains, joueur, lettre_a_changer, indexLettre, indexTirage);
 	}
 
-
+int piecesRestantes(int indexTirage[27])
+	{
+	int piecesRestantes=0;
+	
+	for(int compteur=0; compteur<27; compteur++)
+		piecesRestantes+=indexTirage[compteur];
+		
+	return piecesRestantes;
+	}
 
 
 
