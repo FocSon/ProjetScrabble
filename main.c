@@ -115,7 +115,7 @@ int main()
 	int numCoup=0;
 	int joueur = 1;
 
-	if(charger==0)
+	if(!charger)
 		initMainJoueur(mains, indexTirage, &indexLettre);
 
 	else
@@ -135,8 +135,8 @@ int main()
 	int comptLettre=0;
 	int tourBoucle=0;
 	
-	afficherMainJoueur(case_main_joueur[0], mains, 1);
-	cacherMainJoueur(case_main_joueur[1],2);
+	afficherMainJoueur(case_main_joueur[joueur-1], mains, 1);
+	cacherMainJoueur(case_main_joueur[joueur%2],2);
 
 	while(1)
 		{
@@ -144,14 +144,14 @@ int main()
 			{
 			while(1)
 				{
-				if(tourBoucle>0)
+				if(tourBoucle)
 					{
 					reinitTour(emplacement_lettre_old, lettres_placees, contenu_plateau, mains, joueur, case_main_joueur[joueur-1]);
 					tourBoucle=0;
 					comptLettre=0;
 					}
 				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees);
-				if((clicBoutonValide(emplacement_lettre_selectionnee)==1 || clicBoutonSauver(emplacement_lettre_selectionnee)==1) && comptLettre>=1)
+				if((clicBoutonValide(emplacement_lettre_selectionnee) || clicBoutonSauver(emplacement_lettre_selectionnee)) && comptLettre>=1)
 					break;
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
@@ -162,15 +162,15 @@ int main()
 				comptLettre++;
 				}
 			tourBoucle++;
-			} while (lireMots(mot, contenu_plateau, dicoTab, nbMotDico) == 0);
+			} while (!(lireMots(mot, contenu_plateau, dicoTab, nbMotDico)));
 		scores[joueur-1]=score(scores[joueur-1], emplacement_lettre_old, contenu_plateau, indexLettre);
 		cacherMainJoueur(case_main_joueur[joueur-1], joueur);
 		updateMainJoueur(mains, joueur, lettres_placees, &indexLettre, indexTirage);
-		if(joueur == 1)
+		if(joueur==1)
 			joueur ++;
 		else
 			joueur=1;
-		if(clicBoutonSauver(emplacement_lettre_selectionnee)==1)
+		if(clicBoutonSauver(emplacement_lettre_selectionnee))
 			{
 			sauvegarder(contenu_plateau, mains, scores, joueur);
 			fermer_fenetre();
@@ -247,7 +247,7 @@ void survol(Point pos_souris)
 		temp.y=821;
 		afficher_image("./Images/regles_select.bmp", temp);
 		}
-	else if(rafraichir==1)
+	else if(rafraichir)
 		{
 		temp.x=0;
 		temp.y=0;
@@ -469,7 +469,7 @@ int motValable(char motUtilise[TAILLE_PLATEAU], char dicoTab[SIZEDICO][MAXLENMOT
 #endif
 		}
 		
-	if(strcmp(motUtilise, dicoTab[milieu])==0)							//on vérifie la raison de sortie de la boucle
+	if(!strcmp(motUtilise, dicoTab[milieu]))							//on vérifie la raison de sortie de la boucle
 		return 1;														//si sorti parceque le mot est trouvé, return 1
 	else	
 		return 0;														//si aucune correspondance, return 0
