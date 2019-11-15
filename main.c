@@ -71,10 +71,15 @@ char compDirection(Point, Point);
 void reinitTour(Point emplacement_lettre_old[7], Point lettre_placees[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int, Point);
 void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
 
-void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2], int* joueur);
-void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2], int joueur);
+void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int* joueur);
+void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int joueur);
 void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
 int clicBoutonSauver(Point clic);
+
+int score(int, Point emplacement_lettre_old[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Lettres);
+int multiplicateurLettre(char);
+int multiplicateurMot(char);
+
 
 /******************************************************************************/
 /* MAIN		                                                                  */
@@ -103,7 +108,7 @@ int main()
 
 	int autours[4];
 	
-	int score[2];
+	int scores[2];
 
 	afficher_plateau();
 
@@ -115,7 +120,7 @@ int main()
 
 	else
 		{
-		chargerSauvegarde(contenu_plateau, mains, score, &joueur);
+		chargerSauvegarde(contenu_plateau, mains, scores, &joueur);
 		numCoup++;
 		}
 		
@@ -158,7 +163,8 @@ int main()
 				}
 			tourBoucle++;
 			} while (lireMots(mot, contenu_plateau, dicoTab, nbMotDico) == 0);
-
+		scores[joueur-1]=score(scores[joueur-1], emplacement_lettre_old, contenu_plateau, indexLettre);
+		cacherMainJoueur(case_main_joueur[joueur-1], joueur);
 		updateMainJoueur(mains, joueur, lettres_placees, &indexLettre, indexTirage);
 		if(joueur == 1)
 			joueur ++;
@@ -166,32 +172,17 @@ int main()
 			joueur=1;
 		if(clicBoutonSauver(emplacement_lettre_selectionnee)==1)
 			{
-			sauvegarder(contenu_plateau, mains, score, joueur);
+			sauvegarder(contenu_plateau, mains, scores, joueur);
 			fermer_fenetre();
 			return 0;
 			}
-		cacherMainJoueur(case_main_joueur[joueur-1], joueur);
 		razAnciennesLettres(emplacement_lettre_old, lettres_placees);
 		comptLettre=0;
 		tourBoucle=0;
 		numCoup++;
 
 		afficherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
-
-#if DEBUG
-	for(int b1=0; b1<TAILLE_PLATEAU; b1++){
-		for(int b2=0; b2<TAILLE_PLATEAU; b2++){
-			printf("%c", contenu_plateau[b1][b2][0]);
 		}
-	printf("\n");														//affichage tableau pour test
-	}
-	printf("--------------------------------\n");
-	printf("%d %d\n", emplacement_lettre.x, emplacement_lettre.y);
-	printf("--------------------------------\n");
-#endif
-		
-		}
-
 	attendre_clic();									
 	fermer_fenetre();
 	return 0;														
@@ -942,20 +933,20 @@ void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILL
 	contenu_plateau[case_tableau_old.y][case_tableau_old.x][0]=' ';
 	}
 
-void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2], int joueur)
+void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int joueur)
 	{
 	int compteurDim1;
 	int compteurDim2;
 	
-	FILE* save_score=fopen("Save/save.score_tourJoueur", "w");
-	if(!save_score)
-        fprintf(stderr,"fopen: problème d'ouverture du fichier score");
+	FILE* save_scores=fopen("Save/save.scores_tourJoueur", "w");
+	if(!save_scores)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier scores");
 	else
 		{
 		for(compteurDim1=0; compteurDim1<2; compteurDim1++)
-			fprintf(save_score, "%d,", score[compteurDim1]);
-		fprintf(save_score, "%d", joueur);
-		fclose(save_score);
+			fprintf(save_scores, "%d,", scores[compteurDim1]);
+		fprintf(save_scores, "%d", joueur);
+		fclose(save_scores);
 		}
 		
 	FILE* save_mains=fopen("Save/save.mains", "w");
@@ -981,19 +972,19 @@ void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char m
 		}
 	}
 
-void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int score[2], int * joueur)
+void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int * joueur)
 	{
 	int compteurDim1;
 	int compteurDim2;
 	char contenu[300];
 	
-	FILE* save_score=fopen("./Save/save.score_tourJoueur", "r");
-	if(!save_score)
-        fprintf(stderr,"fopen: problème d'ouverture du fichier score");
+	FILE* save_scores=fopen("./Save/save.scores_tourJoueur", "r");
+	if(!save_scores)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier scores");
 	else
 		{
-		fscanf(save_score, "%d,%d,%d", &score[0], &score[1], joueur);
-		fclose(save_score);
+		fscanf(save_scores, "%d,%d,%d", &scores[0], &scores[1], joueur);
+		fclose(save_scores);
 		}
 		
 	FILE* save_mains=fopen("./Save/save.mains", "r");
@@ -1051,7 +1042,53 @@ int clicBoutonSauver(Point clic)
 	return 0;
 	}
 
+int score(int scoreJoueur, Point emplacement_lettre_old[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Lettres indexLettre)
+	{
+	char lettre;
+	
+	int compLettre;
+	int compteur;
+	
+	int multLettre=0;
+	int multMot=0;
+	int scoreTour=0;
+	
+	for(compteur=0; compteur<7 && emplacement_lettre_old[compteur].x!=0; compteur++)
+		{
+		emplacement_lettre_old[compteur]=convertirEnCaseTableau(emplacement_lettre_old[compteur]);
+		lettre=contenu_plateau[emplacement_lettre_old[compteur].y][emplacement_lettre_old[compteur].x][0];
+		for(compLettre=0; compLettre<27 && lettre!=indexLettre.lettre[compLettre]; compLettre++){}
+		multLettre=multiplicateurLettre(contenu_plateau[emplacement_lettre_old[compteur].y][emplacement_lettre_old[compteur].x][1]);
+		multMot+=multiplicateurMot(contenu_plateau[emplacement_lettre_old[compteur].y][emplacement_lettre_old[compteur].x][1]);
+		scoreTour+=(indexLettre.valeur[compLettre]*multLettre);
+		printf("DANS SCORE :	Lettre : %c 		valeur : %d		multLettre : %d		multMot : %d\n", lettre, indexLettre.valeur[compLettre], multLettre, multMot);
+		}
+	if(!multMot)
+		multMot++;
+	scoreJoueur+=scoreTour*multMot;
+	if(compteur==7)
+		scoreJoueur+=50;
+	printf("score joueur : %d\n", scoreJoueur);
+	return scoreJoueur;
+	}
 
+int multiplicateurLettre(char codeMultLettre)
+	{
+	if(codeMultLettre=='L')
+		return 3;
+	else if(codeMultLettre=='l')
+		return 2;
+	return 1;
+	}
+
+int multiplicateurMot(char codeMultMot)
+	{
+	if(codeMultMot=='M')
+		return 3;
+	else if(codeMultMot=='m')
+		return 2;
+	return 0;
+	}
 
 
 
