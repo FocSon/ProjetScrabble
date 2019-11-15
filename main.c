@@ -46,7 +46,7 @@ int estDansPlateau(Point);													/* Placer les lettres	*/
 int CaseEstLibre(Point, char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);							/************************/	
 int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point, int autours[4]);
 
-Point attendreSelectionLettre(int, Point lettres_placees[7]);
+Point attendreSelectionLettre(int, Point lettres_placees[7], int, int);
 char selectionLettre(int, char mains[2][7], Point);
 void placerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char, Point, Point);
 Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int autours[4], int, Point emplacement_lettre_old[TAILLE_PLATEAU], int);
@@ -64,7 +64,7 @@ void cacherMainJoueur(Point pos_case, int joueur);
 
 Point convertirEnCaseTableau(Point clic);
 
-int clicBoutonValide(Point);
+int clicBouton(Point clic);
 void razAnciennesLettres(Point emplacement_lettre_old[TAILLE_PLATEAU], Point lettres_placees[7]);
 char compDirection(Point, Point);
 
@@ -74,7 +74,6 @@ void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILL
 void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int* joueur);
 void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int joueur);
 void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
-int clicBoutonSauver(Point clic);
 
 int score(int, Point emplacement_lettre_old[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Lettres);
 int multiplicateurLettre(char);
@@ -114,6 +113,7 @@ int main()
 
 	int numCoup=0;
 	int joueur = 1;
+	Point afficherBouton={100,919};
 
 	if(!charger)
 		initMainJoueur(mains, indexTirage, &indexLettre);
@@ -144,14 +144,19 @@ int main()
 			{
 			while(1)
 				{
-				if(tourBoucle)
+				if(comptLettre==0 && numCoup)
+					afficher_image("./Images/bouton_passer.bmp", afficherBouton);
+				else if(comptLettre==1 || !numCoup)
+					afficher_image("./Images/bouton_valider.bmp", afficherBouton);
+				actualiser();
+				if(tourBoucle)			//si la validation n'est pas ok
 					{
 					reinitTour(emplacement_lettre_old, lettres_placees, contenu_plateau, mains, joueur, case_main_joueur[joueur-1]);
 					tourBoucle=0;
 					comptLettre=0;
 					}
-				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees);
-				if((clicBoutonValide(emplacement_lettre_selectionnee) || clicBoutonSauver(emplacement_lettre_selectionnee)) && comptLettre>=1)
+				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees, numCoup, comptLettre);
+				if(clicBouton(emplacement_lettre_selectionnee))
 					break;
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
@@ -166,11 +171,8 @@ int main()
 		scores[joueur-1]=score(scores[joueur-1], emplacement_lettre_old, contenu_plateau, indexLettre);
 		cacherMainJoueur(case_main_joueur[joueur-1], joueur);
 		updateMainJoueur(mains, joueur, lettres_placees, &indexLettre, indexTirage);
-		if(joueur==1)
-			joueur ++;
-		else
-			joueur=1;
-		if(clicBoutonSauver(emplacement_lettre_selectionnee))
+		joueur=(joueur%2)+1;
+		if(clicBouton(emplacement_lettre_selectionnee)==3)
 			{
 			sauvegarder(contenu_plateau, mains, scores, joueur);
 			fermer_fenetre();
@@ -731,16 +733,16 @@ void placerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char 
 /******************************************************************************/
 /* ATTENDRE SELECTION LETTRE DANS LA MAIN                                     */
 /******************************************************************************/
-Point attendreSelectionLettre(int joueur, Point lettres_placees[7])
+Point attendreSelectionLettre(int joueur, Point lettres_placees[7], int numCoup, int comptLettres)
 	{
 	Point p;
 
 	do
 		{
 		p = attendre_clic();
-		} while( (estDansMainJoueur(p, joueur) == 0 || lettreDejaPosee(lettres_placees, p)==1) && (clicBoutonValide(p)==0 && clicBoutonSauver(p)==0));
+		} while( (estDansMainJoueur(p, joueur) == 0 || lettreDejaPosee(lettres_placees, p)==1) && !(clicBouton(p) && ((numCoup==0 && comptLettres>=2) || numCoup)) );
 
-	if(!((p.x>385 && p.x<616) && (p.y>920 && p.y<990)) && !clicBoutonSauver(p))
+	if(!((p.x>385 && p.x<616) && (p.y>920 && p.y<990)) && !clicBouton(p))
 		{
 		p.y = (p.y-272) - ((p.y-272) % 68) + 272;
 
@@ -794,16 +796,6 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][
 		printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
 		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre, autours)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[comptLettre])==0);
 	return emplacement_lettre;
-	}
-
-/******************************************************************************/
-/* BOUTON VALIDER CLIQUÉ ?                                                     */
-/******************************************************************************/
-int clicBoutonValide(Point clic)
-	{
-	if((clic.x>385 && clic.x<616) && (clic.y>920 && clic.y<990))
-		return 1;
-	return 0;
 	}
 
 Point convertirEnCaseTableau(Point clic)
@@ -1035,10 +1027,17 @@ void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
 	actualiser();
 	}
 	
-int clicBoutonSauver(Point clic)
+int clicBouton(Point clic)
 	{
-	if(clic.x>670 && clic.x<900 && clic.y>919 && clic.y<989)
-		return 1;
+	if(clic.y>919 && clic.y<989)
+		{
+		if(clic.x>100 && clic.x<265)			//valider ou passser
+			return 1;
+		else if(clic.x>275 && clic.x<440)		//piocher
+			return 2;
+		else if(clic.x>670 && clic.x<900)		//sauver
+			return 3;
+		}
 	return 0;
 	}
 
