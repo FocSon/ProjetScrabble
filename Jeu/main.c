@@ -1173,9 +1173,11 @@ void switchValiderPasser(int numCoup, int comptLettre)
 	
 void piocher(char mains[2][7], Lettres * indexLettre, int indexTirage[27], int joueur)
 	{
+	Point afficher_bouton={276,922};
 	Point lettre_a_changer[10];
 	int compteur;
 	
+	afficher_image("./Images/bouton_piocher_select.bmp", afficher_bouton);
 	switchValiderPasser(1, 1);
 	
 	printf("Selectionnez les lettres que vous souhaitez changer puis appuyez sur valider\n");
@@ -1195,6 +1197,7 @@ void piocher(char mains[2][7], Lettres * indexLettre, int indexTirage[27], int j
 			selectionLettre(joueur, mains, lettre_a_changer[compteur]);
 		}
 	updateMainJoueur(mains, joueur, lettre_a_changer, indexLettre, indexTirage);
+	afficher_image("./Images/bouton_piocher.bmp", afficher_bouton);
 	}
 
 int piecesRestantes(int indexTirage[27])
