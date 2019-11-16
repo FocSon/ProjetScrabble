@@ -161,6 +161,8 @@ int main()
 					piocher(mains, &indexLettre, indexTirage, joueur);
 					break;
 					}
+				else if(clicBouton(emplacement_lettre_selectionnee)==2 && piecesRestantes(indexTirage)<=7)
+					continue;
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
 				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup, joueur);
@@ -418,7 +420,8 @@ char tirerLettre(Lettres * indexLettre,int indexTirage[27])				//fonction qui at
 	(*indexLettre).nbJetons[idLettre]-=1;
 	printf("nb jeton jokair apres retrait : %d\n", (*indexLettre).nbJetons[26]);
 	
-	actualiser_pioche(indexTirage, compteur);
+	if(piecesRestantes(indexTirage)>0)
+		actualiser_pioche(indexTirage, compteur);
 	
 	return (*indexLettre).lettre[idLettre];
 	}
@@ -1179,7 +1182,6 @@ void piocher(char mains[2][7], Lettres * indexLettre, int indexTirage[27], int j
 		{
 		lettre_a_changer[compteur].x=0;
 		lettre_a_changer[compteur].y=0;
-		printf("test");
 		}
 	
 	for(compteur=0; clicBouton(lettre_a_changer[compteur-1])!=1; compteur++)
