@@ -425,7 +425,6 @@ void actualiser_pioche(int indexTirage[27], int compteur)
 	for(;compteur<27;compteur++)//Baisse le nombre de jeton de 1 depuis le jeton tiré jusqu'à la derniere lettre
 		{
 		indexTirage[compteur]-=1;
-		printf("index : %d		compteur : %d\n", indexTirage[compteur], compteur);
 		}
 	}
 	
@@ -558,8 +557,7 @@ void updateMainJoueur(char mains[2][TAILLEMAIN], int joueur, Point lettres_place
 /******************************************************************************/
 int lettreDejaPosee(Point lettres_placees[TAILLEMAIN], Point lettre_selectionnee)
 	{
-	printf("rentre dans lettre deja placee\n");																//pour éviter de poser 2 fois même lettre
-	lettre_selectionnee.y = ((lettre_selectionnee.y - 272) - (lettre_selectionnee.y - 272) % 68)/68;
+	lettre_selectionnee.y = ((lettre_selectionnee.y - 272) - (lettre_selectionnee.y - 272) % 68)/68;	//pour éviter de poser 2 fois même lettre
 	int temp;
 	for(int compteur=0; compteur<TAILLEMAIN; compteur++)
 		if(lettres_placees[compteur].x && lettres_placees[compteur].y)
@@ -741,7 +739,6 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[TAILLEMAIN], int
 Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], int comptLettre, Point emplacement_lettre_old[TAILLEPLATEAU], int num_coup, int joueur, 	Point lettres_placees[TAILLEMAIN])
 	{
 	Point emplacement_lettre;
-	printf("comptlettre dans fonction attendre placer a : %d et au coup :%d\n", comptLettre, num_coup);
 	if(num_coup==0 && comptLettre==0)
 		{
 		Point caseDansTableau;
@@ -753,13 +750,11 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]
 				break;
 			emplacement_lettre_old[comptLettre]=emplacement_lettre;
 			caseDansTableau=convertirEnCaseTableau(emplacement_lettre);//on converti pour verifier que la premiere lettre est placee au milieu
-			printf("emplacement lettre : x:%d y:%d\n", caseDansTableau.x, caseDansTableau.y);
 			} while (caseDansTableau.x!=7 || caseDansTableau.y!=7);
 		return emplacement_lettre;
 		}
 	if(comptLettre<2)// si moins de deux lettres on ne compare pas la direction
 		{
-		printf("dans boucle <2\n");
 		do
 			{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 			emplacement_lettre=attendre_clic();								//on attend un clic
@@ -767,7 +762,6 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]
 			if((estDansMainJoueur(emplacement_lettre, joueur) && lettreDejaPosee(lettres_placees, emplacement_lettre)==0))//si on souhaite changer de lettre
 				break;
 			emplacement_lettre_old[comptLettre]=emplacement_lettre;
-			printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
 			} while(estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0);
 		return emplacement_lettre;
 		}
@@ -779,7 +773,6 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]
 		if((estDansMainJoueur(emplacement_lettre, joueur) && lettreDejaPosee(lettres_placees, emplacement_lettre)==0))//si on souhaite changer de lettre
 			break;
 		emplacement_lettre_old[comptLettre]=emplacement_lettre;
-		printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
 		} while(estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[1], emplacement_lettre_old[comptLettre])==0);
 	return emplacement_lettre;
 	}
@@ -817,7 +810,6 @@ void razAnciennesLettres(Point emplacement_lettre_old[TAILLEPLATEAU], Point lett
 /******************************************************************************/
 char compDirection(Point lettre1, Point lettre2, Point lettre3)
 	{
-	printf("appel a la fonction compdirection\n coordonnées des lettres : lettre1.x : %d lettre2.x : %d\n", lettre1.x, lettre2.x);
 	if( ((lettre1.x==lettre3.x) || (lettre1.y==lettre3.y)) && ((lettre2.x==lettre3.x) || (lettre2.y==lettre3.y)) )
 		return 1;
 	return 0;
@@ -1067,8 +1059,6 @@ void chargerSauvegarde(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], ch
 			fscanf(save_tirage, "%d,", &indexTirage[compteurDim1]);
 		fclose(save_tirage);
 		}
-	for(compteurDim1=0; compteurDim1<27; compteurDim1++)
-		printf("%d,", indexTirage[compteurDim1]);
 	}
 
 /******************************************************************************/
@@ -1234,24 +1224,24 @@ void afficherScore(int scores[2])
 		score_joueur_2[i]='\0';
 		}
 
-	sprintf(score_joueur_1, "%d pts", scores[0]);
-	sprintf(score_joueur_2, "%d pts", scores[1]);
+	sprintf(score_joueur_1, "%d pts", scores[0]);	//Rajoute pts derrière le score (joueur 1)
+	sprintf(score_joueur_2, "%d pts", scores[1]);	//Rajoute pts derrière le score (joueur 1)
 
-	taille_texte_joueur_1 = taille_texte("Joueur 1", 20);
-	taille_texte_joueur_2 = taille_texte("Joueur 2", 20);
-
-	taille_score_texte_joueur_1 = taille_texte(score_joueur_1, 20);
+	taille_texte_joueur_1 = taille_texte("Joueur 1", 20);																	/********************************************************/
+	taille_texte_joueur_2 = taille_texte("Joueur 2", 20);																	/*														*/
+																															/*														*/
+	taille_score_texte_joueur_1 = taille_texte(score_joueur_1, 20);															/*														*/
 	taille_score_texte_joueur_2 = taille_texte(score_joueur_2, 20);
-
+																															/*Recouvre la zone de texte en vert (couleur du plateau)*/
 	dessiner_rectangle(emplacement_joueur_1, taille_texte_joueur_1.x, taille_texte_joueur_1.y, 1687154);
-	dessiner_rectangle(emplacement_joueur_2, taille_texte_joueur_2.x, taille_texte_joueur_2.y, 1687154);
+	dessiner_rectangle(emplacement_joueur_2, taille_texte_joueur_2.x, taille_texte_joueur_2.y, 1687154);					/*														*/
+																															/*														*/
+	dessiner_rectangle(emplacement_score_joueur_1, taille_score_texte_joueur_1.x, taille_score_texte_joueur_1.y, 1687154);	/*														*/
+	dessiner_rectangle(emplacement_score_joueur_2, taille_score_texte_joueur_2.x, taille_score_texte_joueur_2.y, 1687154);	/********************************************************/
 
-	dessiner_rectangle(emplacement_score_joueur_1, taille_score_texte_joueur_1.x, taille_score_texte_joueur_1.y, 1687154);
-	dessiner_rectangle(emplacement_score_joueur_2, taille_score_texte_joueur_2.x, taille_score_texte_joueur_2.y, 1687154);
-
-	afficher_texte("Joueur 1", 20, emplacement_joueur_1, blanc);
+	afficher_texte("Joueur 1", 20, emplacement_joueur_1, blanc);			/************************************/
 	afficher_texte("Joueur 2", 20, emplacement_joueur_2, blanc);
-
+																			/* Affiche le score des joueurs		*/
 	afficher_texte(score_joueur_1, 20, emplacement_score_joueur_1, blanc);
-	afficher_texte(score_joueur_2, 20, emplacement_score_joueur_2, blanc);
+	afficher_texte(score_joueur_2, 20, emplacement_score_joueur_2, blanc);	/************************************/
 	}
