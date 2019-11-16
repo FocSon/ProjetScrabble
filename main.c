@@ -15,7 +15,7 @@
 
 #define TAILLE_PLATEAU 15
 
-#define DEBUG 1
+#define DEBUG 0
 
 typedef struct{															//structure qui contiens :
 	char lettre[27];													//lettres
@@ -125,7 +125,7 @@ int main()
 		numCoup++;
 		}
 		
-	Point case_main_joueur[2] = {{26, 272},{926, 272}};
+	Point  const case_main_joueur[2] = {{26, 272},{926, 272}};
 	
 	Point emplacement_lettre_selectionnee;
 	char lettre_selectionnee;
@@ -136,8 +136,8 @@ int main()
 	int comptLettre=0;
 	int tourBoucle=0;
 	
-	afficherMainJoueur(case_main_joueur[joueur-1], mains, 1);
-	cacherMainJoueur(case_main_joueur[joueur%2],2);
+	afficherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
+	cacherMainJoueur(case_main_joueur[joueur%2], joueur);
 
 	while(piecesRestantes(indexTirage)>0)
 		{
@@ -1012,7 +1012,7 @@ void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], 
         fprintf(stderr,"fopen: problème d'ouverture du fichier mains");
 	else
 		{
-		fgets(contenu, 7*2, save_mains);
+		fgets(contenu, 15, save_mains);
 		fclose(save_mains);
 		}
 	for(compteurDim1=0; compteurDim1<2; compteurDim1++)
@@ -1032,6 +1032,10 @@ void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], 
 			contenu_plateau[compteurDim2][compteurDim1][0]=contenu[compteurDim2+(compteurDim1*TAILLE_PLATEAU)];
 			
 	updatePlateauSave(contenu_plateau);
+	
+	for(int c=1; c<2; c++)
+		for(int c2=0; c2<7; c2++)
+			printf("%c\n", mains[c][c2]);
 	}
 
 void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
@@ -1164,17 +1168,3 @@ int piecesRestantes(int indexTirage[27])
 		
 	return piecesRestantes;
 	}
-
-
-
-//clic sur le bouton piocher
-//clic sur les lettres à changer
-//clic sur valide
-//pioche les lettres
-//fin de tour normale
-
-
-
-
-// quand on charge on doit update main
-//on doit aussi tirer avec la main du joueur a qui c'etais le tour
