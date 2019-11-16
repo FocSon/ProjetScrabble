@@ -2,113 +2,111 @@
 #include <string.h>
 #include "../lib/libgraphique.h"
 
-#define RESH 1000														//resolution de la fenetre
+#define RESH 1000								
 #define RESV 1000
 
-#define BORDURE 5	
-#define ESPACEMENT 100													//Bordures entre cases
-#define TAILLECASE 48													//Taille des cases
+#define BORDURE 5														//Bordures entre cases	
+#define ESPACEMENT 100													//Bordure entre le tableau et le bord de la fenetre graphique
+#define TAILLECASE 48													//Taille des cases du plateau
 
 #define FILEDICO "./dictionnaire_fr_ss_accents" 						// chemin du fichier dico
 #define SIZEDICO 319000                         						// taille large du dico
 #define MAXLENMOT 26                            						// taille du mot max
 
-#define TAILLEPLATEAU 15
-#define TAILLEMAIN 7
-
-#define DEBUG 0
+#define TAILLEPLATEAU 15												//Nombre de ligne et de colone dans le plateau
+#define TAILLEMAIN 7													//Nombre de lettres dans la main
 
 typedef struct{															//structure qui contiens :
 	char lettre[27];													//lettres
 	int valeur[27];														//leur valeur
-	int nbJetons[27];													//le nombre restant dans le jeu
+	int nbJetons[27];													//le nombre de jetons présent initiallement dans le jeu
 	}Lettres;
 
-int menu();
-void survol(Point);
-int traitement_choix(Point);
+int menu();																//S'occupe de l'affichage de menu
+void survol(Point);														//Interpretation partie temps réel du menu 
+int traitement_choix(Point);											//Permet de savoir le choix du joueur
 
 void afficher_plateau();
 
-void initPoints(char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);
+void initPoints(char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);			//Initialise les cases speciales du plateau (Mot compte double triple etc..)
 
-void initIndexTirage(int indexTirage[27], Lettres);
-Lettres initialiserLettres();
+void initIndexTirage(int indexTirage[27], Lettres);						//Initialisation de la variable utilisée pour le tirage aléatoire
+Lettres initialiserLettres();											//Donne a chaque lettre les valeurs qui lui sont associées (cf. struct Lettres)
 
-char tirerLettre(Lettres *indexLettre, int indexTirage[27]);
-void actualiser_pioche(int indexTirage[27], int compteur);
+char tirerLettre(Lettres *indexLettre, int indexTirage[27]);			//Tirage aléatoire
+void actualiser_pioche(int indexTirage[27], int compteur);				//Apres chaque tirage la pioche s'adapte pour un tirage plus réaliste
 
-int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);
-int motValable(char motUtilise[TAILLEPLATEAU] ,char dicoTab[SIZEDICO][MAXLENMOT], int);
-int lireMots(char mot[TAILLEPLATEAU], char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char dicoTab[SIZEDICO][MAXLENMOT], int);
+int chargeDico(char *filedico, char tabdico[SIZEDICO][MAXLENMOT]);		
+int motValable(char motUtilise[TAILLEPLATEAU] ,char dicoTab[SIZEDICO][MAXLENMOT], int);				//Verifie que le mot est présent dans le dico
+int lireMots(char mot[TAILLEPLATEAU], char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char dicoTab[SIZEDICO][MAXLENMOT], int);//Verifie si un mot non compris dans le dico est posé sur la plateau
 
-Point detecter_case(Point);													/************************/									
-int estDansPlateau(Point);													/* Placer les lettres	*/
-int CaseEstLibre(Point, char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);							/************************/	
-int peutPlacer(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], Point);
+Point detecter_case(Point);												//repositionne un clic sur la grille du plateau						
+int estDansPlateau(Point);												//Verifie si le clic est sur le plateau		
+int CaseEstLibre(Point, char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);	//Verifie si la case est libre			
+int peutPlacer(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], Point);//Verifie si une lettre est autours de là ou on veut poser notre lettre
+int lettreDejaPosee(Point lettres_placees[TAILLEMAIN], Point lettre_selectionnee);//Verifie si la lettre est deja posée
 
-Point attendreSelectionLettre(int, Point lettres_placees[TAILLEMAIN], int, int, int, Point);
-char selectionLettre(int, char mains[2][TAILLEMAIN], Point);
-void placerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char, Point, Point);
-Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], int, Point emplacement_lettre_old[TAILLEPLATEAU], int, int);
-void entourerCase(Point, Couleur);
-int estDansMainJoueur(Point, int);
-void updateMainJoueur(char mains[2][TAILLEMAIN], int, Point lettres_placees[TAILLEMAIN], Lettres*, int indexTirage[27]);
-int lettreDejaPosee(Point lettres_placees[TAILLEMAIN], Point lettre_selectionnee);
+Point attendreSelectionLettre(int, Point lettres_placees[TAILLEMAIN], int, int, int, Point);//attend le selection d'une lettre de la main et renvoi le point correspondant: fonction avec 2 modes. Le 1er mode demande un clic et le second prends un point deja existant
+char selectionLettre(int, char mains[2][TAILLEMAIN], Point);								//converti le point obtenu avec attendreSelectionLettre en une lettre de la main
+void entourerCase(Point, Couleur);															//entoure la lettre dans la main avec une couleur choisie
+int estDansMainJoueur(Point, int);															//verifie que le clic est dans la main du joueur correspondant
 
-void initContenuPlateau(char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);						//fonctions en relation avec la plateau
-void initMainJoueur(char mains[2][TAILLEMAIN], int indextirage[27], Lettres*);
-void updateContenuPlateau(char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], Point, char);					//
+void placerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char, Point, Point);//Place la lettre selectionnée dans le plateau et l'enlève de la main (graphiquement)
+Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], int, Point emplacement_lettre_old[TAILLEPLATEAU], int, int, Point lettres_placees[TAILLEMAIN]);//attend qu'une lettre soir placée ou qu'on selectionne une autre lettre de la main
 
-void afficherMainJoueur(Point, char mains[2][TAILLEMAIN], int);
-void cacherMainJoueur(Point pos_case, int joueur);
+void initContenuPlateau(char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);						//initialiser le plateau avec ' '
+void updateContenuPlateau(char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], Point, char);		//Update de la variable du plateau avec le lettre placee
+Point convertirEnCaseTableau(Point clic);													//converti un point et le transforme en point dans la variable tableau							
 
-Point convertirEnCaseTableau(Point clic);
+void initMainJoueur(char mains[2][TAILLEMAIN], int indextirage[27], Lettres*);				//initialise la main du joueur en tirant 7 lettres pour chaque joueur
+void afficherMainJoueur(Point, char mains[2][TAILLEMAIN], int);								//Affiche la main du joueur selectionné
+void cacherMainJoueur(Point pos_case, int joueur);											//Cache la main du joueur selectionné
+void updateMainJoueur(char mains[2][TAILLEMAIN], int, Point lettres_placees[TAILLEMAIN], Lettres*, int indexTirage[27]);//met a jour la main du joueur a la fin de son tour
 
-int clicBouton(Point clic);
-void razAnciennesLettres(Point emplacement_lettre_old[TAILLEPLATEAU], Point lettres_placees[TAILLEMAIN]);
-char compDirection(Point, Point, Point);
+int clicBouton(Point clic);																	//Verifie si on clique sur un bouton et si oui lequel ?
+void razAnciennesLettres(Point emplacement_lettre_old[TAILLEPLATEAU], Point lettres_placees[TAILLEMAIN]);//Remet a zero l'historique de l'emplacement des lettres du tour ainsi que celui des lettres choies dans la main
+char compDirection(Point, Point, Point);													//Verifie si la lettre placee est sur la meme ligne / colonne que les precedentes
 
-void reinitTour(Point emplacement_lettre_old[TAILLEMAIN], Point lettre_placees[TAILLEMAIN], char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char mains[2][TAILLEMAIN], int, Point);
-void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);
+void reinitTour(Point emplacement_lettre_old[TAILLEMAIN], Point lettre_placees[TAILLEMAIN], char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char mains[2][TAILLEMAIN], int, Point);//Reinitialise le tour si jamais le mot posé n'est pas bon
+void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);			//Veille a remettre les bonnes cases des bonnes couleurs lorsque l'on enlève les lettres lors de la fonction reinitTour
 
-void chargerSauvegarde(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char mains[2][TAILLEMAIN], int scores[2], int* joueur, int indexTirage[27]);
-void sauvegarder(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char mains[2][TAILLEMAIN], int scores[2], int joueur, int indexTirage[27]);
-void updatePlateauSave(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);
+void chargerSauvegarde(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char mains[2][TAILLEMAIN], int scores[2], int* joueur, int indexTirage[27]);	//Charge la sauvegard
+void sauvegarder(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], char mains[2][TAILLEMAIN], int scores[2], int joueur, int indexTirage[27]);			//Sauvegarde avec le bouton sauver (cloture avant le tour comme un appui sur valider ou passer)
+void updatePlateauSave(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]);																				//met a jour le plateau avec avoir chargé la sauvegarde
 
-int score(int, Point emplacement_lettre_old[TAILLEMAIN], char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], Lettres);
-void afficherScore(int scores[2]);
-int multiplicateurLettre(char);
-int multiplicateurMot(char);
+int score(int, Point emplacement_lettre_old[TAILLEMAIN], char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], Lettres);//Met a jour les scores après chaque tour
+void afficherScore(int scores[2]);																						//affiche les scores sur le plateau
+int multiplicateurLettre(char);																							//Précise a la fonction score si la case a des effets sur les points de la lettre
+int multiplicateurMot(char);																							//Précise a la fonction score si la case a des effets sur les points du mot
 
-void switchValiderPasser(int numCoup, int comptLettre);
+void switchValiderPasser(int numCoup, int comptLettre);																	//Change entre le bouton passer et valider sur le plateau
 
-void piocher(char mains[2][TAILLEMAIN], Lettres *, int indexTirage[27], int);
-int piecesRestantes(int indexTirage[27]);
+void piocher(char mains[2][TAILLEMAIN], Lettres *, int indexTirage[27], int);											//Permet de piocher
+int piecesRestantes(int indexTirage[27]);																				//Calcule le nombre de pieces restantes dans le pioche
 
 /******************************************************************************/
 /* MAIN		                                                                  */
 /******************************************************************************/
 int main()
 	{
-	ouvrir_fenetre(RESH, RESV);											//ouvre la session graphique
+	ouvrir_fenetre(RESH, RESV);							
 
-	char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2];									//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
+	char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2];				//tableau qui contiens le contenu du plateau ainsi que les valeurs double ou triple des mots / lettres
 	char mot[TAILLEPLATEAU];
 
 	char dicoTab[SIZEDICO][MAXLENMOT];									//Le dictionnaire
-	int nbMotDico=chargeDico(FILEDICO, dicoTab);										//initialisation de dicoTab + renvoi la taille du dico dans tailleDico
+	int nbMotDico=chargeDico(FILEDICO, dicoTab);
 	
-	Lettres indexLettre=initialiserLettres();							//initalise la valeur des lettres ainsi que le n,ombre de jetons
+	Lettres indexLettre=initialiserLettres();						
 
-	int charger=menu();																//ouvre le menu au joueur
+	int charger=menu();													
 	
-	int indexTirage[27];												//initialisation du tableau nécessaire pour le tirage aléatoire
-	initIndexTirage(indexTirage, indexLettre);							//variable qui vas stoquer l'emplacement de la lettre
+	int indexTirage[27];											
+	initIndexTirage(indexTirage, indexLettre);		
 	
-	char mains[2][TAILLEMAIN];											//Tableau qui vas stocker les cartes
+	char mains[2][TAILLEMAIN];										
 
-	initContenuPlateau(contenu_plateau);								//initialise le charactère par défaut dans le tableau
+	initContenuPlateau(contenu_plateau);	
 	initPoints(contenu_plateau);
 	
 	int scores[2];
@@ -124,10 +122,10 @@ int main()
 	else
 		{
 		chargerSauvegarde(contenu_plateau, mains, scores, &joueur, indexTirage);
-		numCoup++;
+		numCoup++;																		//Si on charge on ne veut pas rejouer le premier coup (coup spécial car besoin de placer au milieu ect..) donc on passe drectement au tour suivant
 		}
 		
-	Point  const case_main_joueur[2] = {{26, 272},{926, 272}};
+	Point  const case_main_joueur[2] = {{26, 272},{926, 272}};							//Haut gauche des mains des joueurs
 	
 	Point emplacement_lettre_selectionnee;
 	char lettre_selectionnee;
@@ -168,7 +166,7 @@ int main()
 					continue;
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup, joueur);
+				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup, joueur, lettres_placees);
 				if(estDansMainJoueur(emplacement_lettre, joueur))
 					{
 					nb_changement_lettre++;
@@ -584,17 +582,7 @@ int lettreDejaPosee(Point lettres_placees[TAILLEMAIN], Point lettre_selectionnee
 void updateContenuPlateau(char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], Point p, char lettre_selectionnee)
 	{
 	p=convertirEnCaseTableau(p);
-	
 	plateau[p.y][p.x][0] = lettre_selectionnee;
-	
-#if DEBUG
-	for(int b1=0; b1<TAILLEPLATEAU; b1++){
-		for(int b2=0; b2<TAILLEPLATEAU; b2++){
-			printf("%c", plateau[b1][b2][0]);
-		}
-		printf("\n");
-	}
-#endif
 	}
 
 /******************************************************************************/
@@ -763,7 +751,7 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[TAILLEMAIN], int
 /******************************************************************************/
 /* ATTENDRE PLACER LETTRE                                                     */
 /******************************************************************************/
-Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], int comptLettre, Point emplacement_lettre_old[TAILLEPLATEAU], int num_coup, int joueur)
+Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2], int comptLettre, Point emplacement_lettre_old[TAILLEPLATEAU], int num_coup, int joueur, 	Point lettres_placees[TAILLEMAIN])
 	{
 	Point emplacement_lettre;
 	printf("comptlettre dans fonction attendre placer a : %d et au coup :%d\n", comptLettre, num_coup);
@@ -774,7 +762,7 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]
 			{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 			emplacement_lettre=attendre_clic();								//on attend un clic
 			emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
-			if(estDansMainJoueur(emplacement_lettre, joueur))
+			if((estDansMainJoueur(emplacement_lettre, joueur) && lettreDejaPosee(lettres_placees, emplacement_lettre)==0))
 				break;
 			emplacement_lettre_old[comptLettre]=emplacement_lettre;
 			caseDansTableau=convertirEnCaseTableau(emplacement_lettre);
@@ -789,11 +777,11 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]
 			{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 			emplacement_lettre=attendre_clic();								//on attend un clic
 			emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
-			if(estDansMainJoueur(emplacement_lettre, joueur))
+			if((estDansMainJoueur(emplacement_lettre, joueur) && lettreDejaPosee(lettres_placees, emplacement_lettre)==0))
 				break;
 			emplacement_lettre_old[comptLettre]=emplacement_lettre;
 			printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
-			} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0);
+			} while(estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0);
 		return emplacement_lettre;
 		}
 		
@@ -801,11 +789,11 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLEPLATEAU][TAILLEPLATEAU][2]
 		{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 		emplacement_lettre=attendre_clic();								//on attend un clic
 		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
-		if(estDansMainJoueur(emplacement_lettre, joueur))
+		if((estDansMainJoueur(emplacement_lettre, joueur) && lettreDejaPosee(lettres_placees, emplacement_lettre)==0))
 			break;
 		emplacement_lettre_old[comptLettre]=emplacement_lettre;
 		printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
-		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[1], emplacement_lettre_old[comptLettre])==0);
+		} while(estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[1], emplacement_lettre_old[comptLettre])==0);
 	return emplacement_lettre;
 	}
 
