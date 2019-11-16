@@ -1168,20 +1168,21 @@ void switchValiderPasser(int numCoup, int comptLettre)
 	
 void piocher(char mains[2][7], Lettres * indexLettre, int indexTirage[27], int joueur)
 	{
-	Point lettre_a_changer[7];
+	Point lettre_a_changer[10];
 	int compteur;
 	
 	switchValiderPasser(1, 1);
 	
 	printf("Selectionnez les lettres que vous souhaitez changer puis appuyez sur valider\n");
 	
-	for(compteur=0; compteur<7; compteur++)
+	for(compteur=0; compteur<10; compteur++)
 		{
 		lettre_a_changer[compteur].x=0;
 		lettre_a_changer[compteur].y=0;
+		printf("test");
 		}
 	
-	for(compteur=0; compteur<7 && clicBouton(lettre_a_changer[compteur-1])!=1; compteur++)
+	for(compteur=0; clicBouton(lettre_a_changer[compteur-1])!=1; compteur++)
 		{
 		do{
 			lettre_a_changer[compteur]=attendreSelectionLettre(joueur, lettre_a_changer, 1, 0, 0, lettre_a_changer[compteur]);
