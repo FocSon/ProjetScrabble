@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "lib/libgraphique.h"
+#include "../lib/libgraphique.h"
 
 #define RESH 1000														//resolution de la fenetre
 #define RESV 1000
@@ -76,6 +76,7 @@ void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char m
 void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
 
 int score(int, Point emplacement_lettre_old[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Lettres);
+void afficherScore(int scores[2]);
 int multiplicateurLettre(char);
 int multiplicateurMot(char);
 
@@ -142,6 +143,7 @@ int main()
 
 	while(piecesRestantes(indexTirage)>0)
 		{
+		afficherScore(scores);
 		do
 			{
 			while(1)
@@ -1203,4 +1205,47 @@ int piecesRestantes(int indexTirage[27])
 		piecesRestantes+=indexTirage[compteur];
 		
 	return piecesRestantes;
+	}
+
+void afficherScore(int scores[2])
+	{
+	char score_joueur_1[15];
+	char score_joueur_2[15];
+
+	Point emplacement_joueur_1 = {5, 210};
+	Point emplacement_joueur_2 = {905, 210};
+	Point emplacement_score_joueur_1 = {15, 760};
+	Point emplacement_score_joueur_2 = {915, 760};
+
+	Point taille_texte_joueur_1;
+	Point taille_texte_joueur_2;
+	Point taille_score_texte_joueur_1;
+	Point taille_score_texte_joueur_2;
+
+	for(int i=0; i<15; i++)
+		{
+		score_joueur_1[i]='\0';
+		score_joueur_2[i]='\0';
+		}
+
+	sprintf(score_joueur_1, "%d pts", scores[0]);
+	sprintf(score_joueur_2, "%d pts", scores[1]);
+
+	taille_texte_joueur_1 = taille_texte("Joueur 1", 20);
+	taille_texte_joueur_2 = taille_texte("Joueur 2", 20);
+
+	taille_score_texte_joueur_1 = taille_texte(score_joueur_1, 20);
+	taille_score_texte_joueur_2 = taille_texte(score_joueur_2, 20);
+
+	dessiner_rectangle(emplacement_joueur_1, taille_texte_joueur_1.x, taille_texte_joueur_1.y, 1687154);
+	dessiner_rectangle(emplacement_joueur_2, taille_texte_joueur_2.x, taille_texte_joueur_2.y, 1687154);
+
+	dessiner_rectangle(emplacement_score_joueur_1, taille_score_texte_joueur_1.x, taille_score_texte_joueur_1.y, 1687154);
+	dessiner_rectangle(emplacement_score_joueur_2, taille_score_texte_joueur_2.x, taille_score_texte_joueur_2.y, 1687154);
+
+	afficher_texte("Joueur 1", 20, emplacement_joueur_1, blanc);
+	afficher_texte("Joueur 2", 20, emplacement_joueur_2, blanc);
+
+	afficher_texte(score_joueur_1, 20, emplacement_score_joueur_1, blanc);
+	afficher_texte(score_joueur_2, 20, emplacement_score_joueur_2, blanc);
 	}
