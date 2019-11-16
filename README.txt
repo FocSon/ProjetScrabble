@@ -58,7 +58,7 @@ Problèmes rencontrés :
 	- Long travail sur la partie graphique du jeu.
 
 Nos idées :
-	- Ne pas être bloqué après avoir sélctionné une lettre et être obligé de la placer.
+	- Ne pas contraindre un joueur à placer sa lettre sur le plateau quand il l'a sélectionnée mais pouvoir changer de sélection.
 	- Travail sur les graphismes du jeu.
 	- Boutons dynamiques dans le menu.
 	- Encadrer les lettres sélectionnées en rouge pour que ce soit plus visuel.
