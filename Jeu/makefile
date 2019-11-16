@@ -1,6 +1,6 @@
 #changer le nom des deux lignes suivantes si nécessaire
 SOURCE = main.c
-OUTPUT = resultat
+OUTPUT = Scrabble
 LIB = -lm -lSDL -lSDL_ttf
 OPT = -Wall -g
 
