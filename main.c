@@ -822,62 +822,87 @@ int lireMots(char mot[TAILLE_PLATEAU], char contenu_plateau[TAILLE_PLATEAU][TAIL
 	{
 	int a, i, j, k, l, m=0;
 	int mot_mauvais = 0;
+	char lettre;
 
 	for(a=0; a<TAILLE_PLATEAU; a++)
 		mot[a] = '\0';
 
-	for(i=0; i<TAILLE_PLATEAU; i++)
+	for(lettre = 'a'; lettre <= 'z'; lettre++)
 		{
-		for(j=0; j<TAILLE_PLATEAU; j++)
+		for(i=0; i<TAILLE_PLATEAU; i++)
 			{
-			if(contenu_plateau[i][j][0] != ' ')
+			for(j=0; j<TAILLE_PLATEAU; j++)
 				{
-				mot[m] = contenu_plateau[i][j][0];
-				m++;
-
-				if(contenu_plateau[i][j+1][0] == ' ')
+				if(contenu_plateau[i][j][0] != ' ')
 					{
-					printf("%s\n", mot);
-					if(motValable(mot, dicoTab, nbMotDico) == 0)
-						mot_mauvais++;
+					if(contenu_plateau[i][j][0] == '%')
+						{
+						mot[m] = lettre;
+						m++;
+						}
+					else
+						{
+						mot[m] = contenu_plateau[i][j][0];
+						m++;
+						}					
+					if(contenu_plateau[i][j+1][0] == ' ')
+						{
+						printf("Test 1 : %s\n", mot);
+						if(motValable(mot, dicoTab, nbMotDico) == 0)
+							mot_mauvais++;
 
-					for(a=0; a<TAILLE_PLATEAU; a++)
-						mot[a] = '\0';
-					m=0;
+						for(a=0; a<TAILLE_PLATEAU; a++)
+							mot[a] = '\0';
+						m=0;
+						}
 					}
 				}
 			}
+		printf("%c\n", lettre);
 		}
+
 	for(a=0; a<TAILLE_PLATEAU; a++)
 		mot[a] = '\0';
 	m=0;
-		
-	for(k=0; k<TAILLE_PLATEAU; k++)
-		{
-		for(l=0; l<TAILLE_PLATEAU; l++)
+	
+	for(lettre = 'a'; lettre <= 'z'; lettre++)
+		{	
+		for(k=0; k<TAILLE_PLATEAU; k++)
 			{
-			if(contenu_plateau[l][k][0] != ' ')
+			for(l=0; l<TAILLE_PLATEAU; l++)
 				{
-				printf(".%c.", contenu_plateau[l][k][0]);
-				mot[m] = contenu_plateau[l][k][0];
-				m++;
-
-				if(contenu_plateau[l+1][k][0] == ' ')
+				if(contenu_plateau[l][k][0] != ' ')
 					{
-					printf("%s\n", mot);
-					if(motValable(mot, dicoTab, nbMotDico) == 0)
-						mot_mauvais++;
+					if(contenu_plateau[l][k][0] == '%')
+						{
+						mot[m] = lettre;
+						m++;
+						}
+					else
+						{
+						printf(".%c.", contenu_plateau[l][k][0]);
+						mot[m] = contenu_plateau[l][k][0];
+						m++;
+						}
+					if(contenu_plateau[l+1][k][0] == ' ')
+						{
+						printf("Test 2 : %s\n", mot);
+						if(motValable(mot, dicoTab, nbMotDico) == 0)
+							mot_mauvais++;
 
-					for(a=0; a<TAILLE_PLATEAU; a++)
-						mot[a] = '\0';
-					m=0;
+						for(a=0; a<TAILLE_PLATEAU; a++)
+							mot[a] = '\0';
+						m=0;
+						}
 					}
 				}
 			}
+		printf("%c\n", lettre);
 		}
+	mot_mauvais -= 25;
 	printf("%d\n", mot_mauvais);
 
-	if(mot_mauvais!=0)
+	if(mot_mauvais > 0)
 		return 0;
 
 	return 1;
