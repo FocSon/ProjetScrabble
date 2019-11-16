@@ -822,91 +822,83 @@ int lireMots(char mot[TAILLE_PLATEAU], char contenu_plateau[TAILLE_PLATEAU][TAIL
 	{
 	int a, i, j, k, l, m=0;
 	int mot_mauvais = 0;
-	char lettre;
+	int jokairDansMot=42;
+	char lettre='a';
 
 	for(a=0; a<TAILLE_PLATEAU; a++)
 		mot[a] = '\0';
 
-	for(lettre = 'a'; lettre <= 'z'; lettre++)
+	for(i=0; i<TAILLE_PLATEAU; i++)
 		{
-		for(i=0; i<TAILLE_PLATEAU; i++)
+		for(j=0; j<TAILLE_PLATEAU; j++)
 			{
-			for(j=0; j<TAILLE_PLATEAU; j++)
+			if(contenu_plateau[i][j][0] != ' ')
 				{
-				if(contenu_plateau[i][j][0] != ' ')
+				mot[m] = contenu_plateau[i][j][0];
+				if(mot[m]=='%')
+					jokairDansMot=m;
+				m++;					
+				if(contenu_plateau[i][j+1][0] == ' ')
 					{
-					if(contenu_plateau[i][j][0] == '%')
-						{
-						mot[m] = lettre;
-						m++;
-						}
-					else
-						{
-						mot[m] = contenu_plateau[i][j][0];
-						m++;
-						}					
-					if(contenu_plateau[i][j+1][0] == ' ')
-						{
-						printf("Test 1 : %s\n", mot);
-						if(motValable(mot, dicoTab, nbMotDico) == 0)
-							mot_mauvais++;
+					printf("jokair dans mot %d \n", jokairDansMot);
+					if(jokairDansMot!=42)
+						for(lettre='a'; lettre<='z' && motValable(mot, dicoTab, nbMotDico)==0; lettre++)
+							{
+							mot[jokairDansMot]=lettre;
+							printf("%s\n",mot);
+							}
+							
+					if(motValable(mot, dicoTab, nbMotDico) == 0)
+						mot_mauvais++;
 
-						for(a=0; a<TAILLE_PLATEAU; a++)
-							mot[a] = '\0';
-						m=0;
-						}
+					for(a=0; a<TAILLE_PLATEAU; a++)
+						mot[a] = '\0';
+					m=0;
+					jokairDansMot=42;
 					}
 				}
 			}
-		printf("%c\n", lettre);
 		}
 
 	for(a=0; a<TAILLE_PLATEAU; a++)
 		mot[a] = '\0';
 	m=0;
+	jokairDansMot=42;
 	
-	for(lettre = 'a'; lettre <= 'z'; lettre++)
-		{	
-		for(k=0; k<TAILLE_PLATEAU; k++)
+	for(k=0; k<TAILLE_PLATEAU; k++)
+		{
+		for(l=0; l<TAILLE_PLATEAU; l++)
 			{
-			for(l=0; l<TAILLE_PLATEAU; l++)
+			if(contenu_plateau[l][k][0] != ' ')
 				{
-				if(contenu_plateau[l][k][0] != ' ')
+				mot[m] = contenu_plateau[l][k][0];
+				if(mot[m]=='%')
+					jokairDansMot=m;
+				m++;		
+				if(contenu_plateau[l+1][k][0] == ' ')
 					{
-					if(contenu_plateau[l][k][0] == '%')
-						{
-						mot[m] = lettre;
-						m++;
-						}
-					else
-						{
-						printf(".%c.", contenu_plateau[l][k][0]);
-						mot[m] = contenu_plateau[l][k][0];
-						m++;
-						}
-					if(contenu_plateau[l+1][k][0] == ' ')
-						{
-						printf("Test 2 : %s\n", mot);
-						if(motValable(mot, dicoTab, nbMotDico) == 0)
-							mot_mauvais++;
+					printf("jokair dans mot %d \n", jokairDansMot);
+					if(jokairDansMot!=42)
+						for(lettre='a'; lettre<='z' && motValable(mot, dicoTab, nbMotDico)==0; lettre++)
+							mot[jokairDansMot]=lettre;
+							
+					printf("Test 2 : %s\n", mot);
+					if(motValable(mot, dicoTab, nbMotDico) == 0)
+						mot_mauvais++;
 
-						for(a=0; a<TAILLE_PLATEAU; a++)
-							mot[a] = '\0';
-						m=0;
-						}
+					for(a=0; a<TAILLE_PLATEAU; a++)
+						mot[a] = '\0';
+					m=0;
+					jokairDansMot=42;
 					}
 				}
 			}
-		printf("%c\n", lettre);
 		}
-	mot_mauvais -= 25;
 	printf("%d\n", mot_mauvais);
 
 	if(mot_mauvais > 0)
 		return 0;
-
 	return 1;
-
 	}
 
 void reinitTour(Point emplacement_lettre_old[7], Point lettres_placees[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int joueur, Point case_main_joueur)
