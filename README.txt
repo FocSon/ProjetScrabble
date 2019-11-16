@@ -37,3 +37,35 @@ Fonctionnalités :
 	Pour pouvoir réaccéder à cette folle partie, relancer le jeu et une fois dans le menu,
 	cliquez sur le bouton "Charger". Le plateau se réouvrira avec toutes vos pièces
 
+Déroulement de la création du projet :
+	Nous avons d'abord essayé de visualiser un peu toutes les fonction, les types et variables
+	dont allions avoir besoin. Nous avons ensuite commencer à créer la partie graphique du jeu (Pablo),
+	et en parallèle tous ce qui n'avais pas besoin de cette partie graphique (recherche dans le dictionnaire,
+	tirer les lettres, les initialiser, leur donner une valeur etc... (Antoine)). Une fois ce code mit en commun,
+	nous avons tester tous les bugs que l'on pouvais rencontrer avec cette base de jeu. Puis nous nous sommes
+	dispaché les fonctions : interpretation des clics sur le plateau etc... (Pablo), création du menu,
+	conditions pour poser les lettres etc... (Antoine).
+	Enfin, nous avons peauffiné nos fonctions. Nous avons eu une situatation "critique" (une sortie de tableau,
+	qui faisait planter le programme) malgrès cela, nous nous sommes dispachés les tâches afin de ne pas prendre de retard,
+	Antoine essayait de résoudre le problème tandis que Pablo continuer à avancer dans le programme.
+	Une fois le problème résolu, il ne restait plus que quelques fonctionnalités à ajouter.
+
+Bugs connus :
+	- Quand il reste moins de 7 lettres dans la pioche, la condition d'arrêt ne fonctionne pas bien
+
+Problèlmes rencontrés :
+	- Quelques erreurs avec des sorties de tableaux (met parfois du temps pour trouver lequel c'est)
+	- Long travail sur la partie graphique du jeu.
+
+Nos idées :
+	- Ne pas être bloqué après avoir sélctionné une lettre et être obligé de la placer.
+	- Travail sur les graphismes du jeu.
+	- Boutons dynamiques dans le menu.
+	- Encadrer les lettres selectionnées en rouge pour que ce soit plus visuel.
+	- Affichage du score directement sur le jeu et pas dans le terminal.
+
+Conclusion :
+	Ce projet nous a appris à travailler en petit groupe (horraires décalés,
+	apprendre à bien communiquer avec son coéquipier, se donner des idées pour les laisser murir etc...).
+	On a pu découvrir comment créer un plus gros programme avec beaucoup plus de lignes de code, de fonctions etc...
+	Ce projet a été très enrichissant, et nous sommes plutôt content de ce que nous avons fait
