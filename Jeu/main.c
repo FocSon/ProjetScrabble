@@ -82,7 +82,6 @@ int multiplicateurMot(char);																							//Précise a la fonction scor
 void switchValiderPasser(int numCoup, int comptLettre);																	//Change entre le bouton passer et valider sur le plateau
 
 void piocher(char mains[2][TAILLEMAIN], Lettres *, int indexTirage[27], int);											//Permet de piocher
-int piecesRestantes(int indexTirage[27]);																				//Calcule le nombre de pieces restantes dans le pioche
 
 /******************************************************************************/
 /* MAIN		                                                                  */
@@ -127,10 +126,10 @@ int main()
 		
 	Point  const case_main_joueur[2] = {{26, 272},{926, 272}};							//Haut gauche des mains des joueurs
 	
-	Point emplacement_lettre_selectionnee;
-	char lettre_selectionnee;
+	Point emplacement_lettre_selectionnee;												//lettre_selectionnee concerne la lettre directement depuis la main et emplacement_lettre_selectionné est son point
+	char lettre_selectionnee;															//alors que emplacement_lettre correspond a son emplacement dans le plateau
 	Point emplacement_lettre;
-	Point emplacement_lettre_old[TAILLEPLATEAU]={0};
+	Point emplacement_lettre_old[TAILLEPLATEAU]={0};									//historiques
 	Point lettres_placees[TAILLEMAIN]={0};
 
 	int comptLettre=0;
@@ -140,34 +139,34 @@ int main()
 	afficherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
 	cacherMainJoueur(case_main_joueur[joueur%2], joueur);
 
-	while(piecesRestantes(indexTirage)>0)
+	while(indexTirage[26]>0)												//Le jeu s'arrête si plus de lettres
 		{
-		afficherScore(scores);
+		afficherScore(scores);															//affiche les scores a chaque tour
 		do
 			{
-			while(1)
+			while(1)										
 				{
-				switchValiderPasser(numCoup, comptLettre);
-				if(tourBoucle)			//si la validation n'est pas ok
+				switchValiderPasser(numCoup, comptLettre);	
+				if(tourBoucle)															//si la validation du mot n'est pas ok
 					{
 					reinitTour(emplacement_lettre_old, lettres_placees, contenu_plateau, mains, joueur, case_main_joueur[joueur-1]);
 					tourBoucle=0;
 					comptLettre=0;
 					}
-				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees, numCoup, comptLettre, nb_changement_lettre, emplacement_lettre);
-				if(clicBouton(emplacement_lettre_selectionnee)==1 || clicBouton(emplacement_lettre_selectionnee)==3)
+				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees, numCoup, comptLettre, nb_changement_lettre, emplacement_lettre);//On demande la lettre a prendre
+				if(clicBouton(emplacement_lettre_selectionnee)==1 || clicBouton(emplacement_lettre_selectionnee)==3)												//Si on veut sauvegarder ou valider, on sort de la boucle pour terminer le tour
 					break;
-				else if(clicBouton(emplacement_lettre_selectionnee)==2 && piecesRestantes(indexTirage)>7)
+				else if(clicBouton(emplacement_lettre_selectionnee)==2 && indexTirage[26]>7)															//Si on veut piocher et qu'il reste plus de 7 lettres (regles officielles de la FFcs et oui il en existe une)
 					{
-					piocher(mains, &indexLettre, indexTirage, joueur);
-					break;
+					piocher(mains, &indexLettre, indexTirage, joueur);																								
+					break;																																			//fin du tour
 					}
-				else if(clicBouton(emplacement_lettre_selectionnee)==2 && piecesRestantes(indexTirage)<=7)
+				else if(clicBouton(emplacement_lettre_selectionnee)==2 && indexTirage[26]<=7)															//Si pas assez de lettre on continue
 					continue;
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
-				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup, joueur, lettres_placees);
-				if(estDansMainJoueur(emplacement_lettre, joueur))
+				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);																//on deduis la lettre du point obtenu precedement
+				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup, joueur, lettres_placees);					//on attend un clic dans le plateau ou un autre choix de lettre
+				if(estDansMainJoueur(emplacement_lettre, joueur))																									//Si autre choix de lettre alors on redemande une position pour la placer dans le tableau
 					{
 					nb_changement_lettre++;
 					entourerCase(emplacement_lettre_selectionnee, noir);
@@ -180,7 +179,7 @@ int main()
 				nb_changement_lettre=0;
 				}
 			tourBoucle++;
-			} while (!(lireMots(mot, contenu_plateau, dicoTab, nbMotDico)));
+			} while (!(lireMots(mot, contenu_plateau, dicoTab, nbMotDico)));//Verifie que le mot est valable sinon finis le tour
 		scores[joueur-1]=score(scores[joueur-1], emplacement_lettre_old, contenu_plateau, indexLettre);
 		cacherMainJoueur(case_main_joueur[joueur-1], joueur);
 		updateMainJoueur(mains, joueur, lettres_placees, &indexLettre, indexTirage);
@@ -228,10 +227,10 @@ int menu ()															//fonction qui vas s'occuper de traiter les infos recu
 
 		choix=traitement_choix(clic);										//on regarde sur quel bouton l'utilisateur a cliqué
 
-		if(choix==2)
+		if(choix==2)//Les regles
 			printf("\n\n\nValeurs et nombres de lettres du Scrabble :\n\nLa lettre A	Valeur : 1 point	Nombre : 9 pièces\nLa lettre B	Valeur : 3 points	Nombre : 2 pièces\nLa lettre C	Valeur : 3 points	Nombre : 2 pièces\nLa lettre D	Valeur : 2 points	Nombre : 3 pièces\nLa lettre E	Valeur : 1 point	Nombre : 15 pièces\nLa lettre F	Valeur : 4 points	Nombre : 2 pièces\nLa lettre G	Valeur : 2 points	Nombre : 2 pièces\nLa lettre H	Valeur : 4 points	Nombre : 2 pièces\nLa lettre I	Valeur : 1 point	Nombre : 8 pièces\nLa lettre J	Valeur : 8 points	Nombre : 1 pièce\nLa lettre K	Valeur : 10 points	Nombre : 1 pièce\nLa lettre L	Valeur : 1 point	Nombre : 5 pièces\nLa lettre M	Valeur : 2 points	Nombre : 3 pièces\nLa lettre N	Valeur : 1 point	Nombre : 6 pièces\nLa lettre O	Valeur : 1 point	Nombre : 6 pièces\nLa lettre P	Valeur : 3 points	Nombre : 2 pièces\nLa lettre Q	Valeur : 8 points	Nombre : 1 pièce\nLa lettre R	Valeur : 1 point	Nombre : 6 pièces\nLa lettre S	Valeur : 1 point	Nombre : 6 pièces\nLa lettre T	Valeur : 1 point	Nombre : 6 pièces\nLa lettre U	Valeur : 1 point	Nombre : 6 pièces\nLa lettre V	Valeur : 4 points	Nombre : 2 pièces\nLa lettre W	Valeur : 10 points	Nombre : 1 pièce\nLa lettre X	Valeur : 10 points	Nombre : 1 pièce\nLa lettre Y	Valeur : 10 points	Nombre : 1 pièce\nLa lettre Z	Valeur : 10 points	Nombre : 1 pièce\nJokers	Valeur : 0 point	Nombre : 2 pièces\n\n\n\nLes différentes valeurs des cases :\n\n    Case bleu ciel : Lettre compte double\n    Case bleu foncé : Lettre compte triple\n    Case rose : Mot compte double\n    Case rouge : Mot compte triple\n\n\n\nCommencer une partie de Scrabble :\n\nPour commencer, chaque joueur va tirer au hasard 7 lettres dans le sac. Avec celles-ci, chacun va alors essayer de créer un ou plusieurs mots. Le premier joueur doit obligatoirement poser le premier mot au centre du plateau, sur l’étoile. Ce mot doit être au minimum composé de 2 lettres. Le deuxième joueur doit s’appuyer sur ce mot pour placer le sien et ainsi de suite…\n\nUn joueur peut échanger ses lettres par d’autres en piochant dans le sac mais cela lui fera obligatoirement passer son tour.\n\n\n\nCalcul des scores du Scrabble :\n\nLe score d’un coup est calculé en additionnant la valeur de toutes les lettres des nouveaux mots formés (y compris celles déjà posées sur la grille). Si l’un des lettres du mot est sur une case bleu ciel, bleu foncé, la valeur doit être calculée. Idem pour les cases rose et rouge correspondant au mot compte double et mot compte triple.\n\nA savoir que si un mot est posé sur 2 cases « compte double » ou 2 cases « compte triple », la valeur du mot est alors multipliée par 4 et par 9.\nAttention ! Chaque case multiplicatrice ne sert qu’une fois!\n\nSi l’un des joueurs arrivent à placer ses 7 lettres d’un seul coup, on dit qu’il a fait un « Scrabble« . Ce coup lui rapporte une prime de 50 points.\n\n\n\nComment gagner au Scrabble :\n\nQuand le sac est vide et qu’un des joueurs pose toutes ses lettres, la partie est terminée. Celui-ci prend alors en bonus la valeur des lettres des autres joueurs. Alors, on fait les totaux de points de chacun des joueurs et celui possédant le plus de points gagne la partie de Scrabble.\n\nBon à savoir : L’idéal lors d’une partie de Scrabble est d’avoir un dictionnaire à portée de main afin de vérifier si le mot posé par l’un des joueurs est valable. Cela permettant d’éviter tout litige. Après vérification, si le mot posé n’existe pas, le joueur reprend toutes ses lettres et marque 0 point pour ce coup.\n");
 			
-		}while(choix==2);
+		}while(choix==2);//tant que l'on choisis d'afficher les regles
 		
 	return choix;
 	}
@@ -239,7 +238,7 @@ int menu ()															//fonction qui vas s'occuper de traiter les infos recu
 /******************************************************************************/
 /* SURVOL									                                  */
 /******************************************************************************/
-void survol(Point pos_souris)
+void survol(Point pos_souris)//interprete le temps reel
 	{
 	Point temp;
 	int rafraichir=1;
@@ -292,6 +291,9 @@ int traitement_choix(Point clic)
 	return choix;
 	}
 
+/******************************************************************************/
+/* AFFICHER PLATEAU						                                      */
+/******************************************************************************/
 void afficher_plateau()
 	{
 	Point init={0,0};									
@@ -333,14 +335,7 @@ void initPoints(char plateau[TAILLEPLATEAU][TAILLEPLATEAU][2])
 				
 			else if( ((lon+5)%8==0 && (lar%7==0)) || ((lar+5)%8==0 && (lon%7==0)) || ((lar==6 || lar==8 || lar==2 || lar==12) && (lon==6 || lon==8 || lon==2 || lon==12)))
 				plateau[lar][lon][1]='l';								//lettre double
-
-#if DEBUG
-			printf("%c",plateau[lar][lon][1]);
-#endif
 			}
-#if DEBUG
-		printf("\n");
-#endif
 		}
 	}
 	
@@ -402,7 +397,7 @@ Lettres initialiserLettres()
 /******************************************************************************/
 char tirerLettre(Lettres * indexLettre,int indexTirage[27])				//fonction qui attribue les cartes
 	{
-	int idLettre=entier_aleatoire(indexTirage[26]);								//102 lettres dans le jeu, pour tirage plus realiste, on pioche parmis les 102 jetons
+	int idLettre=entier_aleatoire(indexTirage[26]);								//Ttire un nombre aléatoire avec le nombre total de jetons restants
 	int compteur;
 
 	for(compteur=0; compteur<27; compteur++)					//parcourir les valeurs du tableau
@@ -421,7 +416,7 @@ char tirerLettre(Lettres * indexLettre,int indexTirage[27])				//fonction qui at
 	(*indexLettre).nbJetons[idLettre]-=1;
 	printf("nb jeton jokair apres retrait : %d\n", (*indexLettre).nbJetons[26]);
 	
-	if(piecesRestantes(indexTirage)>0)
+	if(indexTirage[26]>0)
 		actualiser_pioche(indexTirage, compteur);
 	
 	return (*indexLettre).lettre[idLettre];
@@ -1187,16 +1182,6 @@ void piocher(char mains[2][TAILLEMAIN], Lettres * indexLettre, int indexTirage[2
 		}
 	updateMainJoueur(mains, joueur, lettre_a_changer, indexLettre, indexTirage);
 	afficher_image("./Images/bouton_piocher.bmp", afficher_bouton);
-	}
-
-int piecesRestantes(int indexTirage[27])
-	{
-	int piecesRestantes=0;
-	
-	for(int compteur=0; compteur<27; compteur++)
-		piecesRestantes+=indexTirage[compteur];
-		
-	return piecesRestantes;
 	}
 
 void afficherScore(int scores[2])
