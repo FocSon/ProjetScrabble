@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "./lib/libgraphique.h"
+#include "../lib/libgraphique.h"
 
 #define RESH 1000														//resolution de la fenetre
 #define RESV 1000
