@@ -213,7 +213,7 @@ int menu ()															//fonction qui vas s'occuper de traiter les infos recu
 			survol(pos_souris);												//animation en fonction de là où est la souris
 			
 			clic = clic_a_eu_lieu();										//on prends le clic de l'utilisateur si clic il y a eu
-			}while( ( (clic.y < 700 || clic.y > 800) || ( (clic.x < 108 || clic.x > 400) && (clic.x < 600 || clic.x > 890) ) ) && (clic.y > 921 || clic.y < 821 || clic.x < 354 || clic.x > 643 ) );
+			}while( ( (clic.y < 723 || clic.y > 801) || ( (clic.x < 168 || clic.x > 388) && (clic.x < 608 || clic.x > 828) ) ) && (clic.y > 912 || clic.y < 835 || clic.x < 388 || clic.x > 608 ) );
 
 		choix=traitement_choix(clic);										//on regarde sur quel bouton l'utilisateur a cliqué
 
@@ -233,22 +233,22 @@ void survol(Point pos_souris)
 	Point temp;
 	int rafraichir=1;
 	
-	if(pos_souris.y > 700 && pos_souris.y < 800 && pos_souris.x > 140 && pos_souris.x < 400)
+	if(pos_souris.y > 723 && pos_souris.y < 801 && pos_souris.x > 168 && pos_souris.x < 388)
 		{
-		temp.x=108;
-		temp.y=700;
+		temp.x=168;
+		temp.y=723;
 		afficher_image("./Images/jouer_select.bmp", temp);
 		}
-	else if(pos_souris.y > 700 && pos_souris.y < 800 && pos_souris.x > 600 && pos_souris.x < 890)
+	else if(pos_souris.y > 723 && pos_souris.y < 801 && pos_souris.x > 608 && pos_souris.x < 828)
 		{
-		temp.x=600;
-		temp.y=700;
+		temp.x=608;
+		temp.y=723;
 		afficher_image("./Images/charger_select.bmp", temp);
 		}
-	else if(pos_souris.y > 821 && pos_souris.y < 921 && pos_souris.x > 354 && pos_souris.x < 643)
+	else if(pos_souris.y > 835 && pos_souris.y < 912 && pos_souris.x > 388 && pos_souris.x < 608)
 		{
-		temp.x=354;
-		temp.y=821;
+		temp.x=388;
+		temp.y=835;
 		afficher_image("./Images/regles_select.bmp", temp);
 		}
 	else if(rafraichir)
@@ -269,10 +269,10 @@ int traitement_choix(Point clic)
 	{
 	int choix;
 	
-	if(clic.y >821)														//bouton règles
+	if(clic.y >802)														//bouton règles
 		choix=2;
 	
-	else if(clic.x<400)													//bouton jouer
+	else if(clic.x<389)													//bouton jouer
 		choix=0;
 		
 	else 																//bouton charger
@@ -1061,13 +1061,13 @@ void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
 	
 int clicBouton(Point clic)
 	{
-	if(clic.y>919 && clic.y<989)
+	if(clic.y>922 && clic.y<979)
 		{
-		if(clic.x>100 && clic.x<265)			//valider ou passser
+		if(clic.x>100 && clic.x<261)			//valider ou passser
 			return 1;
-		else if(clic.x>275 && clic.x<440)		//piocher
+		else if(clic.x>276 && clic.x<437)		//piocher
 			return 2;
-		else if(clic.x>670 && clic.x<900)		//sauver
+		else if(clic.x>738 && clic.x<899)		//sauver
 			return 3;
 		}
 	return 0;
@@ -1125,7 +1125,7 @@ int multiplicateurMot(char codeMultMot)
 
 void switchValiderPasser(int numCoup, int comptLettre)
 	{
-	Point afficherBouton={100,919};
+	Point afficherBouton={100,922};
 	if(comptLettre==0 && numCoup)
 		afficher_image("./Images/bouton_passer.bmp", afficherBouton);
 	else if(comptLettre==1 || !numCoup)
