@@ -1,0 +1,19 @@
+=== Version du 12/11/2019
+* Ajout d'un test de validité du chemin NOM_POLICE, afin de mettre un terme aux segfault
+  lors de l'utilisation de afficher_texte
+
+=== Version du 12/10/2019
+* Ajout de dessiner_cercle
+
+=== Version du 11/06/2019
+* Ajout du #ifndef / #define dans libgraphique.h
+
+=== Version du 18/10/2017
+* Correctif du nom des paquets à installer dans la documentation
+
+=== Version du 6/10/2017
+* Ajout de fonctions manquantes: 
+    - attendre_touche_durée
+    - attendre_clic_gauche_droite
+    - taille_texte
+    - deplacement_souris_a_eu_lieu
