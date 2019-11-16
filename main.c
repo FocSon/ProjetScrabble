@@ -71,8 +71,8 @@ char compDirection(Point, Point, Point);
 void reinitTour(Point emplacement_lettre_old[7], Point lettre_placees[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int, Point);
 void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
 
-void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int* joueur);
-void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int joueur);
+void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int* joueur, int indexTirage[27]);
+void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int joueur, int indexTirage[27]);
 void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);
 
 int score(int, Point emplacement_lettre_old[7], char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Lettres);
@@ -121,7 +121,7 @@ int main()
 
 	else
 		{
-		chargerSauvegarde(contenu_plateau, mains, scores, &joueur);
+		chargerSauvegarde(contenu_plateau, mains, scores, &joueur, indexTirage);
 		numCoup++;
 		}
 		
@@ -184,7 +184,7 @@ int main()
 		joueur=(joueur%2)+1;
 		if(clicBouton(emplacement_lettre_selectionnee)==3)
 			{
-			sauvegarder(contenu_plateau, mains, scores, joueur);
+			sauvegarder(contenu_plateau, mains, scores, joueur, indexTirage);
 			fermer_fenetre();
 			return 0;
 			}
@@ -407,7 +407,7 @@ char tirerLettre(Lettres * indexLettre,int indexTirage[27])				//fonction qui at
 		if(idLettre < indexTirage[compteur])							//si le chiffre tiré est inferieur au nombre de jetons cumulés de a jusqu'a la lettre tiré, lui associe l'id de la lettre correspondante
 			{
 			printf("avant %d\n", idLettre);
-			printf("tirage %d", compteur);
+			printf("tirage %d\n", compteur);
 			idLettre=compteur;
 			printf("apres %d\n", idLettre);
 			break;
@@ -968,7 +968,7 @@ void actualiser_plateau(Point emplacement_lettre_old, char contenu_plateau[TAILL
 	contenu_plateau[case_tableau_old.y][case_tableau_old.x][0]=' ';
 	}
 
-void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int joueur)
+void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int joueur, int indexTirage[27])
 	{
 	int compteurDim1;
 	int compteurDim2;
@@ -1005,9 +1005,19 @@ void sauvegarder(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char m
 				fprintf(save_plateau, "%c", contenu_plateau[compteurDim2][compteurDim1][0]);
 		fclose(save_plateau);
 		}
+		
+	FILE* save_tirage=fopen("Save/save.tirage", "w");
+	if(!save_mains)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier mains");
+	else
+		{
+		for(compteurDim1=0; compteurDim1<27; compteurDim1++)
+			fprintf(save_mains, "%d,", indexTirage[compteurDim1]);
+		fclose(save_tirage);
+		}
 	}
 
-void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int * joueur)
+void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char mains[2][7], int scores[2], int * joueur, int indexTirage[27])
 	{
 	int compteurDim1;
 	int compteurDim2;
@@ -1047,10 +1057,18 @@ void chargerSauvegarde(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], 
 			contenu_plateau[compteurDim2][compteurDim1][0]=contenu[compteurDim2+(compteurDim1*TAILLE_PLATEAU)];
 			
 	updatePlateauSave(contenu_plateau);
-	
-	for(int c=1; c<2; c++)
-		for(int c2=0; c2<7; c2++)
-			printf("%c\n", mains[c][c2]);
+		
+	FILE* save_tirage=fopen("./Save/save.tirage", "r");
+	if(!save_tirage)
+        fprintf(stderr,"fopen: problème d'ouverture du fichier scores");
+	else
+		{
+		for(compteurDim1=0; compteurDim1<27; compteurDim1++)
+			fscanf(save_tirage, "%d,", &indexTirage[compteurDim1]);
+		fclose(save_tirage);
+		}
+	for(compteurDim1=0; compteurDim1<27; compteurDim1++)
+		printf("%d,", indexTirage[compteurDim1]);
 	}
 
 void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
