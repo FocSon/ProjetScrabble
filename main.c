@@ -46,10 +46,10 @@ int estDansPlateau(Point);													/* Placer les lettres	*/
 int CaseEstLibre(Point, char plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2]);							/************************/	
 int peutPlacer(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], Point);
 
-Point attendreSelectionLettre(int, Point lettres_placees[7], int, int);
+Point attendreSelectionLettre(int, Point lettres_placees[7], int, int, int, Point);
 char selectionLettre(int, char mains[2][7], Point);
 void placerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char, Point, Point);
-Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int, Point emplacement_lettre_old[TAILLE_PLATEAU], int);
+Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int, Point emplacement_lettre_old[TAILLE_PLATEAU], int, int);
 void entourerCase(Point, Couleur);
 int estDansMainJoueur(Point, int);
 void updateMainJoueur(char mains[2][7], int, Point lettres_placees[7], Lettres*, int indexTirage[27]);
@@ -135,6 +135,7 @@ int main()
 
 	int comptLettre=0;
 	int tourBoucle=0;
+	int nb_changement_lettre=0;
 	
 	afficherMainJoueur(case_main_joueur[joueur-1], mains, joueur);
 	cacherMainJoueur(case_main_joueur[joueur%2], joueur);
@@ -152,7 +153,7 @@ int main()
 					tourBoucle=0;
 					comptLettre=0;
 					}
-				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees, numCoup, comptLettre);
+				emplacement_lettre_selectionnee = attendreSelectionLettre(joueur, lettres_placees, numCoup, comptLettre, nb_changement_lettre, emplacement_lettre);
 				if(clicBouton(emplacement_lettre_selectionnee)==1 || clicBouton(emplacement_lettre_selectionnee)==3)
 					break;
 				else if(clicBouton(emplacement_lettre_selectionnee)==2 && piecesRestantes(indexTirage)>7)
@@ -162,11 +163,18 @@ int main()
 					}
 				lettres_placees[comptLettre]=emplacement_lettre_selectionnee;
 				lettre_selectionnee = selectionLettre(joueur, mains, emplacement_lettre_selectionnee);
-				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup);
+				emplacement_lettre = attendrePlacerLettre(contenu_plateau, comptLettre, emplacement_lettre_old, numCoup, joueur);
+				if(estDansMainJoueur(emplacement_lettre, joueur))
+					{
+					nb_changement_lettre++;
+					entourerCase(emplacement_lettre_selectionnee, noir);
+					continue;
+					}
 				updateContenuPlateau(contenu_plateau, emplacement_lettre, lettre_selectionnee);
 				placerLettre(contenu_plateau, lettre_selectionnee, emplacement_lettre, emplacement_lettre_selectionnee);
 				
 				comptLettre++;
+				nb_changement_lettre=0;
 				}
 			tourBoucle++;
 			} while (!(lireMots(mot, contenu_plateau, dicoTab, nbMotDico)));
@@ -213,7 +221,7 @@ int menu ()															//fonction qui vas s'occuper de traiter les infos recu
 			survol(pos_souris);												//animation en fonction de là où est la souris
 			
 			clic = clic_a_eu_lieu();										//on prends le clic de l'utilisateur si clic il y a eu
-			}while( ( (clic.y < 723 || clic.y > 801) || ( (clic.x < 168 || clic.x > 388) && (clic.x < 608 || clic.x > 828) ) ) && (clic.y > 912 || clic.y < 835 || clic.x < 388 || clic.x > 608 ) );
+			}while( ( (clic.y < 700 || clic.y > 800) || ( (clic.x < 108 || clic.x > 400) && (clic.x < 600 || clic.x > 890) ) ) && (clic.y > 921 || clic.y < 821 || clic.x < 354 || clic.x > 643 ) );
 
 		choix=traitement_choix(clic);										//on regarde sur quel bouton l'utilisateur a cliqué
 
@@ -233,22 +241,22 @@ void survol(Point pos_souris)
 	Point temp;
 	int rafraichir=1;
 	
-	if(pos_souris.y > 723 && pos_souris.y < 801 && pos_souris.x > 168 && pos_souris.x < 388)
+	if(pos_souris.y > 700 && pos_souris.y < 800 && pos_souris.x > 140 && pos_souris.x < 400)
 		{
-		temp.x=168;
-		temp.y=723;
+		temp.x=108;
+		temp.y=700;
 		afficher_image("./Images/jouer_select.bmp", temp);
 		}
-	else if(pos_souris.y > 723 && pos_souris.y < 801 && pos_souris.x > 608 && pos_souris.x < 828)
+	else if(pos_souris.y > 700 && pos_souris.y < 800 && pos_souris.x > 600 && pos_souris.x < 890)
 		{
-		temp.x=608;
-		temp.y=723;
+		temp.x=600;
+		temp.y=700;
 		afficher_image("./Images/charger_select.bmp", temp);
 		}
-	else if(pos_souris.y > 835 && pos_souris.y < 912 && pos_souris.x > 388 && pos_souris.x < 608)
+	else if(pos_souris.y > 821 && pos_souris.y < 921 && pos_souris.x > 354 && pos_souris.x < 643)
 		{
-		temp.x=388;
-		temp.y=835;
+		temp.x=354;
+		temp.y=821;
 		afficher_image("./Images/regles_select.bmp", temp);
 		}
 	else if(rafraichir)
@@ -269,10 +277,10 @@ int traitement_choix(Point clic)
 	{
 	int choix;
 	
-	if(clic.y >802)														//bouton règles
+	if(clic.y >821)														//bouton règles
 		choix=2;
 	
-	else if(clic.x<389)													//bouton jouer
+	else if(clic.x<400)													//bouton jouer
 		choix=0;
 		
 	else 																//bouton charger
@@ -630,7 +638,7 @@ char selectionLettre(int joueur, char mains[2][7], Point p)
 		lettre_selectionnee = mains[joueur-1][(p.y-272)/68];
 		entourerCase(p, rouge);
 		}
-	else if (joueur ==2)
+	else if (joueur == 2)
 		{
 		p.x = ((p.x - 926) - (p.x - 926) % 53) + 926;
 		p.y = ((p.y - 272) - (p.y - 272) % 68) + 272;
@@ -723,15 +731,16 @@ void placerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], char 
 /******************************************************************************/
 /* ATTENDRE SELECTION LETTRE DANS LA MAIN                                     */
 /******************************************************************************/
-Point attendreSelectionLettre(int joueur, Point lettres_placees[7], int numCoup, int comptLettres)
+Point attendreSelectionLettre(int joueur, Point lettres_placees[7], int numCoup, int comptLettres, int demander_clic, Point selection_lettre)
 	{
 	Point p;
-
-	do
-		{
-		p = attendre_clic();
-		} while( (estDansMainJoueur(p, joueur) == 0 || lettreDejaPosee(lettres_placees, p)==1) && !(clicBouton(p) && ((numCoup==0 && comptLettres>=2) || numCoup)) );
-
+	if(!demander_clic)
+		do
+			{
+			p = attendre_clic();
+			} while( (estDansMainJoueur(p, joueur) == 0 || lettreDejaPosee(lettres_placees, p)==1) && !(clicBouton(p) && ((numCoup==0 && comptLettres>=2) || numCoup)) );
+	else
+		p = selection_lettre;
 	if(!((p.x>385 && p.x<616) && (p.y>920 && p.y<990)) && !clicBouton(p))
 		{
 		p.y = (p.y-272) - ((p.y-272) % 68) + 272;
@@ -748,7 +757,7 @@ Point attendreSelectionLettre(int joueur, Point lettres_placees[7], int numCoup,
 /******************************************************************************/
 /* ATTENDRE PLACER LETTRE                                                     */
 /******************************************************************************/
-Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int comptLettre, Point emplacement_lettre_old[TAILLE_PLATEAU], int num_coup)
+Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2], int comptLettre, Point emplacement_lettre_old[TAILLE_PLATEAU], int num_coup, int joueur)
 	{
 	Point emplacement_lettre;
 	printf("comptlettre dans fonction attendre placer a : %d et au coup :%d\n", comptLettre, num_coup);
@@ -759,6 +768,8 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][
 			{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 			emplacement_lettre=attendre_clic();								//on attend un clic
 			emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
+			if(estDansMainJoueur(emplacement_lettre, joueur))
+				break;
 			emplacement_lettre_old[comptLettre]=emplacement_lettre;
 			caseDansTableau=convertirEnCaseTableau(emplacement_lettre);
 			printf("emplacement lettre : x:%d y:%d\n", caseDansTableau.x, caseDansTableau.y);
@@ -772,6 +783,8 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][
 			{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 			emplacement_lettre=attendre_clic();								//on attend un clic
 			emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
+			if(estDansMainJoueur(emplacement_lettre, joueur))
+				break;
 			emplacement_lettre_old[comptLettre]=emplacement_lettre;
 			printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
 			} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0);
@@ -782,6 +795,8 @@ Point attendrePlacerLettre(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][
 		{															//tant que le clic n'est pas dans le tableau ou que la case choisie n'est pas libre,
 		emplacement_lettre=attendre_clic();								//on attend un clic
 		emplacement_lettre= detecter_case(emplacement_lettre);			//on detecte la case sur laquelle est le clic
+		if(estDansMainJoueur(emplacement_lettre, joueur))
+			break;
 		emplacement_lettre_old[comptLettre]=emplacement_lettre;
 		printf("emplacement lettre : %d\n", emplacement_lettre_old[comptLettre].x);
 		} while (estDansPlateau(detecter_case(emplacement_lettre)) == 0 || CaseEstLibre(detecter_case(emplacement_lettre), contenu_plateau) == 0 || peutPlacer(contenu_plateau, emplacement_lettre)==0 || compDirection(emplacement_lettre_old[0], emplacement_lettre_old[1], emplacement_lettre_old[comptLettre])==0);
@@ -1061,13 +1076,13 @@ void updatePlateauSave(char contenu_plateau[TAILLE_PLATEAU][TAILLE_PLATEAU][2])
 	
 int clicBouton(Point clic)
 	{
-	if(clic.y>922 && clic.y<979)
+	if(clic.y>919 && clic.y<989)
 		{
-		if(clic.x>100 && clic.x<261)			//valider ou passser
+		if(clic.x>100 && clic.x<265)			//valider ou passser
 			return 1;
-		else if(clic.x>276 && clic.x<437)		//piocher
+		else if(clic.x>275 && clic.x<440)		//piocher
 			return 2;
-		else if(clic.x>738 && clic.x<899)		//sauver
+		else if(clic.x>670 && clic.x<900)		//sauver
 			return 3;
 		}
 	return 0;
@@ -1125,7 +1140,7 @@ int multiplicateurMot(char codeMultMot)
 
 void switchValiderPasser(int numCoup, int comptLettre)
 	{
-	Point afficherBouton={100,922};
+	Point afficherBouton={100,919};
 	if(comptLettre==0 && numCoup)
 		afficher_image("./Images/bouton_passer.bmp", afficherBouton);
 	else if(comptLettre==1 || !numCoup)
@@ -1151,7 +1166,7 @@ void piocher(char mains[2][7], Lettres * indexLettre, int indexTirage[27], int j
 	for(compteur=0; compteur<7 && clicBouton(lettre_a_changer[compteur-1])!=1; compteur++)
 		{
 		do{
-			lettre_a_changer[compteur]=attendreSelectionLettre(joueur, lettre_a_changer, 1, 0);
+			lettre_a_changer[compteur]=attendreSelectionLettre(joueur, lettre_a_changer, 1, 0, 0, lettre_a_changer[compteur]);
 			}while(clicBouton(lettre_a_changer[compteur])==2 || clicBouton(lettre_a_changer[compteur])==3);
 		if(clicBouton(lettre_a_changer[compteur])!=1)
 			selectionLettre(joueur, mains, lettre_a_changer[compteur]);
